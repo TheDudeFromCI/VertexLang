@@ -47,4 +47,4 @@ jobs:
         run: cargo build
 
       - name: Deploy
-        run: cargo deploy
+        run: cargo publish
