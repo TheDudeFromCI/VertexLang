@@ -12,3 +12,5 @@ readme = "README.md"
 exclude = [".github/*"]
 
 [dependencies]
+regex = "1"
+enum-map = "0.6.4"
