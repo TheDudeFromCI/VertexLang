@@ -1,4 +1,4 @@
-mod tokenization;
+mod compiler;
 mod utils;
 
 fn main() {
