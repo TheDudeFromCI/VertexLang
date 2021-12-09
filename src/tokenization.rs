@@ -128,39 +128,138 @@ mod tests {
         let token_list: Vec<Token> = tokenize(&String::from(HELLO_WORLD_PROGRAM));
 
         let tokens: Vec<Token> = vec![
-            Token { token_type: TokenType::ExportKeyword, contents: String::from("export") },
-            Token { token_type: TokenType::SerialKeyword, contents: String::from("serial") },
-            Token { token_type: TokenType::FunctionKeyword, contents: String::from("function") },
-            Token { token_type: TokenType::Name, contents: String::from("main") },
-            Token { token_type: TokenType::OpenParenthesesSymbol, contents: String::from("(") },
-            Token { token_type: TokenType::Name, contents: String::from("args") },
-            Token { token_type: TokenType::ColonSymbol, contents: String::from(":") },
-            Token { token_type: TokenType::Name, contents: String::from("string") },
-            Token { token_type: TokenType::OpenBracketsSymbol, contents: String::from("[") },
-            Token { token_type: TokenType::CloseBracketsSymbol, contents: String::from("]") },
-            Token { token_type: TokenType::CloseParenthesesSymbol, contents: String::from(")") },
-            Token { token_type: TokenType::EndLineIndicator, contents: String::from("\n") },
-            Token { token_type: TokenType::Name, contents: String::from("greeting") },
-            Token { token_type: TokenType::AssignEqualsSymbol, contents: String::from("=") },
-            Token { token_type: TokenType::String, contents: String::from("'Hello '") },
-            Token { token_type: TokenType::PlusSymbol, contents: String::from("+") },
-            Token { token_type: TokenType::Name, contents: String::from("args") },
-            Token { token_type: TokenType::OpenBracketsSymbol, contents: String::from("[") },
-            Token { token_type: TokenType::Integer, contents: String::from("0") },
-            Token { token_type: TokenType::CloseBracketsSymbol, contents: String::from("]") },
-            Token { token_type: TokenType::PlusSymbol, contents: String::from("+") },
-            Token { token_type: TokenType::String, contents: String::from("'!'") },
-            Token { token_type: TokenType::EndLineIndicator, contents: String::from("\n") },
-            Token { token_type: TokenType::EndLineIndicator, contents: String::from("\n") },
-            Token { token_type: TokenType::SerialKeyword, contents: String::from("serial") },
-            Token { token_type: TokenType::Name, contents: String::from("std") },
-            Token { token_type: TokenType::ColonSymbol, contents: String::from(":") },
-            Token { token_type: TokenType::Name, contents: String::from("println") },
-            Token { token_type: TokenType::OpenParenthesesSymbol, contents: String::from("(") },
-            Token { token_type: TokenType::Name, contents: String::from("greeting") },
-            Token { token_type: TokenType::CloseParenthesesSymbol, contents: String::from(")") },
-            Token { token_type: TokenType::EndLineIndicator, contents: String::from("\n") },
-            Token { token_type: TokenType::ProgramEnd, contents: String::from("") },
+            Token {
+                token_type: TokenType::ExportKeyword,
+                contents: String::from("export"),
+            },
+            Token {
+                token_type: TokenType::SerialKeyword,
+                contents: String::from("serial"),
+            },
+            Token {
+                token_type: TokenType::FunctionKeyword,
+                contents: String::from("function"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("main"),
+            },
+            Token {
+                token_type: TokenType::OpenParenthesesSymbol,
+                contents: String::from("("),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("args"),
+            },
+            Token {
+                token_type: TokenType::ColonSymbol,
+                contents: String::from(":"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("string"),
+            },
+            Token {
+                token_type: TokenType::OpenBracketsSymbol,
+                contents: String::from("["),
+            },
+            Token {
+                token_type: TokenType::CloseBracketsSymbol,
+                contents: String::from("]"),
+            },
+            Token {
+                token_type: TokenType::CloseParenthesesSymbol,
+                contents: String::from(")"),
+            },
+            Token {
+                token_type: TokenType::EndLineIndicator,
+                contents: String::from("\n"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("greeting"),
+            },
+            Token {
+                token_type: TokenType::AssignEqualsSymbol,
+                contents: String::from("="),
+            },
+            Token {
+                token_type: TokenType::String,
+                contents: String::from("'Hello '"),
+            },
+            Token {
+                token_type: TokenType::PlusSymbol,
+                contents: String::from("+"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("args"),
+            },
+            Token {
+                token_type: TokenType::OpenBracketsSymbol,
+                contents: String::from("["),
+            },
+            Token {
+                token_type: TokenType::Integer,
+                contents: String::from("0"),
+            },
+            Token {
+                token_type: TokenType::CloseBracketsSymbol,
+                contents: String::from("]"),
+            },
+            Token {
+                token_type: TokenType::PlusSymbol,
+                contents: String::from("+"),
+            },
+            Token {
+                token_type: TokenType::String,
+                contents: String::from("'!'"),
+            },
+            Token {
+                token_type: TokenType::EndLineIndicator,
+                contents: String::from("\n"),
+            },
+            Token {
+                token_type: TokenType::EndLineIndicator,
+                contents: String::from("\n"),
+            },
+            Token {
+                token_type: TokenType::SerialKeyword,
+                contents: String::from("serial"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("std"),
+            },
+            Token {
+                token_type: TokenType::ColonSymbol,
+                contents: String::from(":"),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("println"),
+            },
+            Token {
+                token_type: TokenType::OpenParenthesesSymbol,
+                contents: String::from("("),
+            },
+            Token {
+                token_type: TokenType::Name,
+                contents: String::from("greeting"),
+            },
+            Token {
+                token_type: TokenType::CloseParenthesesSymbol,
+                contents: String::from(")"),
+            },
+            Token {
+                token_type: TokenType::EndLineIndicator,
+                contents: String::from("\n"),
+            },
+            Token {
+                token_type: TokenType::ProgramEnd,
+                contents: String::from(""),
+            },
         ];
 
         assert_eq!(token_list, tokens);
@@ -173,12 +272,30 @@ mod tests {
         let token_list: Vec<Token> = tokenize(&String::from(HELLO_WORLD_PROGRAM));
 
         let tokens: Vec<Token> = vec![
-            Token { token_type: TokenType::ExportKeyword, contents: String::from("export") },
-            Token { token_type: TokenType::SerialKeyword, contents: String::from("serial") },
-            Token { token_type: TokenType::FunctionKeyword, contents: String::from("function") },
-            Token { token_type: TokenType::Unknown, contents: String::from("@{main") },
-            Token { token_type: TokenType::EndLineIndicator, contents: String::from("\n") },
-            Token { token_type: TokenType::ProgramEnd, contents: String::from("") },
+            Token {
+                token_type: TokenType::ExportKeyword,
+                contents: String::from("export"),
+            },
+            Token {
+                token_type: TokenType::SerialKeyword,
+                contents: String::from("serial"),
+            },
+            Token {
+                token_type: TokenType::FunctionKeyword,
+                contents: String::from("function"),
+            },
+            Token {
+                token_type: TokenType::Unknown,
+                contents: String::from("@{main"),
+            },
+            Token {
+                token_type: TokenType::EndLineIndicator,
+                contents: String::from("\n"),
+            },
+            Token {
+                token_type: TokenType::ProgramEnd,
+                contents: String::from(""),
+            },
         ];
 
         assert_eq!(token_list, tokens);
