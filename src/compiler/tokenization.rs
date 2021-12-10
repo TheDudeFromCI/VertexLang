@@ -6,6 +6,7 @@ use regex::Regex;
 pub enum TokenType {
     EndLineIndicator,
 
+    ModuleKeyword,
     ExportKeyword,
     SerialKeyword,
     FunctionKeyword,
@@ -39,14 +40,15 @@ pub enum TokenType {
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
-    token_type: TokenType,
-    contents: String,
+    pub token_type: TokenType,
+    pub contents: String,
 }
 
 pub fn tokenize(code: &String) -> Vec<Token> {
     let token_regex: EnumMap<TokenType, Regex> = enum_map! {
         TokenType::EndLineIndicator => Regex::new(r"^[\r\t ]*?((\n).*)").unwrap(),
 
+        TokenType::ModuleKeyword => Regex::new(r"^\s*((module)\b.*)").unwrap(),
         TokenType::ExportKeyword => Regex::new(r"^\s*((export)\b.*)").unwrap(),
         TokenType::SerialKeyword => Regex::new(r"^\s*((serial)\b.*)").unwrap(),
         TokenType::FunctionKeyword => Regex::new(r"^\s*((function)\b.*)").unwrap(),
