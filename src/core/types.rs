@@ -1,4 +1,5 @@
 type DataTypeIndex = usize;
+type VariableIndex = usize;
 
 #[derive(Debug)]
 pub struct Module {
@@ -29,7 +30,9 @@ impl Module {
     }
 
     pub fn get_data_type(&self, index: DataTypeIndex) -> Option<&DataType> {
-        if index >= self.data_types.len() { return None; }
+        if index >= self.data_types.len() {
+            return None;
+        }
         return Some(&self.data_types[index]);
     }
 
@@ -46,9 +49,10 @@ impl Module {
 #[derive(Debug)]
 pub struct FunctionImpl {
     pub header: FunctionHeader,
-    pub parameters: Vec<Variable>,
+    pub variables: Vec<Variable>,
+    pub parameters: Vec<VariableIndex>,
+    pub returned: Vec<VariableIndex>,
     pub expressions: Vec<Expression>,
-    pub returned: Vec<Variable>,
 }
 
 #[derive(Debug)]
@@ -74,16 +78,16 @@ pub struct DataType {
 #[derive(Debug)]
 pub struct Expression {
     pub func: FunctionHeader,
-    pub inputs: Vec<Variable>,
-    pub outputs: Vec<Variable>,
+    pub inputs: Vec<VariableIndex>,
+    pub outputs: Vec<VariableIndex>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn build_module() -> Module{
-        let my_mod = Module {
+    fn build_module() -> Module {
+        let mut my_mod = Module {
             name: String::from("my_mod"),
             functions: vec![],
             data_types: vec![],
@@ -112,13 +116,18 @@ mod tests {
                 name: String::from("func1"),
                 serial: false,
                 parameters: vec![
-                    my_mod.find_data_type(&String::from("number")).unwrap().index,
-                    my_mod.find_data_type(&String::from("number")).unwrap().index,
+                    my_mod
+                        .find_data_type(&String::from("number"))
+                        .unwrap()
+                        .index,
+                    my_mod
+                        .find_data_type(&String::from("number"))
+                        .unwrap()
+                        .index,
                 ],
-                return_types: vec![
-                    my_mod.find_data_type(&String::from("bool")).unwrap().index,
-                ],
+                return_types: vec![my_mod.find_data_type(&String::from("bool")).unwrap().index],
             },
+            variables: vec![],
             parameters: vec![],
             expressions: vec![],
             returned: vec![],
@@ -130,14 +139,27 @@ mod tests {
                 name: String::from("func2"),
                 serial: false,
                 parameters: vec![
-                    my_mod.find_data_type(&String::from("string")).unwrap().index,
-                    my_mod.find_data_type(&String::from("string")).unwrap().index,
-                    my_mod.find_data_type(&String::from("string")).unwrap().index,
+                    my_mod
+                        .find_data_type(&String::from("string"))
+                        .unwrap()
+                        .index,
+                    my_mod
+                        .find_data_type(&String::from("string"))
+                        .unwrap()
+                        .index,
+                    my_mod
+                        .find_data_type(&String::from("string"))
+                        .unwrap()
+                        .index,
                 ],
                 return_types: vec![
-                    my_mod.find_data_type(&String::from("number")).unwrap().index,
+                    my_mod
+                        .find_data_type(&String::from("number"))
+                        .unwrap()
+                        .index,
                 ],
             },
+            variables: vec![],
             parameters: vec![],
             expressions: vec![],
             returned: vec![],
@@ -152,7 +174,7 @@ mod tests {
         let module = build_module();
         let function = module.find_function(&String::from("func2"));
 
-        assert_ne!(function, None);
+        assert!(!function.is_none());
         assert_eq!(function.unwrap().header.name, String::from("func2"))
     }
 
@@ -161,7 +183,7 @@ mod tests {
         let module = build_module();
         let data_type = module.find_data_type(&String::from("string"));
 
-        assert_ne!(data_type, None);
+        assert!(!data_type.is_none());
         assert_eq!(data_type.unwrap().name, String::from("string"))
     }
 }
