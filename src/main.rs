@@ -1,6 +1,6 @@
 mod compiler;
-mod utils;
 mod core;
+mod utils;
 
 fn main() {
     println!("Hello, world!");
