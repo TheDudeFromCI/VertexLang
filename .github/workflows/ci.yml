@@ -44,7 +44,7 @@ jobs:
           cargo -V
 
       - name: Build
-        run: cargo build
+        run: cargo build --release
 
       - name: Deploy
         run: cargo publish
