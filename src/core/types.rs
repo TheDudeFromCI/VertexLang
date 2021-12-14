@@ -9,6 +9,15 @@ pub struct Module {
 }
 
 impl Module {
+    #[inline]
+    pub fn new(name: &str) -> Module {
+        return Module {
+            name: String::from(name),
+            functions: vec![],
+            data_types: vec![],
+        };
+    }
+
     pub fn find_function(&self, name: &str) -> Option<&FunctionImpl> {
         for function in &self.functions {
             if function.header.name.eq(name) {
