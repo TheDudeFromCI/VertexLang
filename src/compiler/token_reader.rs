@@ -11,20 +11,27 @@ fn get_handlers() -> Vec<TokenHandler> {
     return vec![
         string_token_handler,
         number_token_handler,
-
         |code, char_index| symbol_token_handler(code, char_index, "<=", TokenType::LTEConditional),
         |code, char_index| symbol_token_handler(code, char_index, ">=", TokenType::GTEConditional),
         |code, char_index| symbol_token_handler(code, char_index, "<", TokenType::LTConditional),
         |code, char_index| symbol_token_handler(code, char_index, ">", TokenType::GTConditional),
-        |code, char_index| symbol_token_handler(code, char_index, "==", TokenType::EqualConditional),
-
+        |code, char_index| {
+            symbol_token_handler(code, char_index, "==", TokenType::EqualConditional)
+        },
         |code, char_index| symbol_token_handler(code, char_index, "\n", TokenType::NewLine),
-        |code, char_index| symbol_token_handler(code, char_index, "=", TokenType::VariableAssignment),
-
-        |code, char_index| name_token_handler(code, char_index, vec![
-            ("export", TokenType::ExportKeyword),
-            ("function", TokenType::FunctionKeyword),
-        ]),
+        |code, char_index| {
+            symbol_token_handler(code, char_index, "=", TokenType::VariableAssignment)
+        },
+        |code, char_index| {
+            name_token_handler(
+                code,
+                char_index,
+                vec![
+                    ("export", TokenType::ExportKeyword),
+                    ("function", TokenType::FunctionKeyword),
+                ],
+            )
+        },
     ];
 }
 
@@ -150,7 +157,11 @@ fn try_token_handlers(code: &str, char_index: usize) -> Option<(TokenType, usize
 }
 
 /// Tries to parse the token as a known keyword or a generic identifier name.
-fn name_token_handler(code: &str, char_index: usize, keywords: Vec<(&str, TokenType)>) -> Option<(TokenType, usize)> {
+fn name_token_handler(
+    code: &str,
+    char_index: usize,
+    keywords: Vec<(&str, TokenType)>,
+) -> Option<(TokenType, usize)> {
     let mut chars = code.chars().skip(char_index);
 
     let mut len = 0;
@@ -206,9 +217,10 @@ fn string_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usi
             skip_next = false;
         } else {
             if c == string_char {
-                return Some((TokenType::String(String::from(
-                    &code[char_index..char_index + len],
-                )), len));
+                return Some((
+                    TokenType::String(String::from(&code[char_index..char_index + len])),
+                    len,
+                ));
             } else if c == Some('\\') {
                 skip_next = true;
             }
@@ -250,7 +262,12 @@ fn number_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usi
     return None;
 }
 
-fn symbol_token_handler(code: &str, char_index: usize, symbol: &str, token_type: TokenType) -> Option<(TokenType, usize)> {
+fn symbol_token_handler(
+    code: &str,
+    char_index: usize,
+    symbol: &str,
+    token_type: TokenType,
+) -> Option<(TokenType, usize)> {
     let mut source = code.chars().skip(char_index);
     let mut target = symbol.chars();
 
@@ -296,7 +313,11 @@ mod tests {
 
         assert_eq!(
             token,
-            Some((TokenType::String(String::from("'Hello, world!'")), 1usize, 15usize))
+            Some((
+                TokenType::String(String::from("'Hello, world!'")),
+                1usize,
+                15usize
+            ))
         );
     }
 
@@ -328,12 +349,35 @@ mod tests {
         let code = "export function hello_world\n  'hi'";
         let tokens = read_all_tokens(&code);
 
-        assert_eq!(tokens, vec![
-            Token { token_type: TokenType::ExportKeyword, line: 0, col: 0 },
-            Token { token_type: TokenType::FunctionKeyword, line: 0, col: 7 },
-            Token { token_type: TokenType::Name(String::from("hello_world")), line: 0, col: 16 },
-            Token { token_type: TokenType::NewLine, line: 0, col: 27 },
-            Token { token_type: TokenType::String(String::from("'hi'")), line: 1, col: 2 },
-        ]);
+        assert_eq!(
+            tokens,
+            vec![
+                Token {
+                    token_type: TokenType::ExportKeyword,
+                    line: 0,
+                    col: 0
+                },
+                Token {
+                    token_type: TokenType::FunctionKeyword,
+                    line: 0,
+                    col: 7
+                },
+                Token {
+                    token_type: TokenType::Name(String::from("hello_world")),
+                    line: 0,
+                    col: 16
+                },
+                Token {
+                    token_type: TokenType::NewLine,
+                    line: 0,
+                    col: 27
+                },
+                Token {
+                    token_type: TokenType::String(String::from("'hi'")),
+                    line: 1,
+                    col: 2
+                },
+            ]
+        );
     }
 }
