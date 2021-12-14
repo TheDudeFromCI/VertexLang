@@ -1,16 +1,28 @@
 /// A function type that takes in a code string and tries to parse that token
 /// currently at the provided char index within the string. This function will
 /// return a DiscoveredToken if it is capable of parsing the token, or None if
-/// it is unable to correctly parse the token.
-type TokenHandler = fn(code: &str, char_index: usize) -> Option<TokenType>;
+/// it is unable to correctly parse the token. The length of the token is also
+/// returned as the second argument within the tuple.
+type TokenHandler = fn(code: &str, char_index: usize) -> Option<(TokenType, usize)>;
 
 /// A list of token handler functions that are available for parsing Vertex code
 /// strings.
-const HANDLERS: &'static [TokenHandler] = &[
-    number_token_handler,
-    name_token_handler,
-    string_token_handler,
-];
+fn get_handlers() -> Vec<TokenHandler> {
+    return vec![
+        number_token_handler,
+        name_token_handler,
+        string_token_handler,
+
+        |code, char_index| symbol_token_handler(code, char_index, "<=", TokenType::LTEConditional),
+        |code, char_index| symbol_token_handler(code, char_index, ">=", TokenType::GTEConditional),
+        |code, char_index| symbol_token_handler(code, char_index, "<", TokenType::LTConditional),
+        |code, char_index| symbol_token_handler(code, char_index, ">", TokenType::GTConditional),
+        |code, char_index| symbol_token_handler(code, char_index, "==", TokenType::EqualConditional),
+
+        |code, char_index| symbol_token_handler(code, char_index, "\n", TokenType::NewLine),
+        |code, char_index| symbol_token_handler(code, char_index, "=", TokenType::VariableAssignment),
+    ];
+}
 
 /// An enum that defines how the content within the token contents should be
 /// interpreted.
@@ -20,15 +32,34 @@ pub enum TokenType {
     Integer(i64),
     Float(f64),
 
+    LTEConditional,
+    GTEConditional,
+    LTConditional,
+    GTConditional,
+    EqualConditional,
+
+    NewLine,
+    VariableAssignment,
+
     Name(String),
+    ExportKeyword,
     FunctionKeyword,
+}
+
+/// A wrapper for token types that also contain the location information of the
+/// tken within the code string it was generated from.
+#[derive(Debug, PartialEq)]
+pub struct Token {
+    token_type: TokenType,
+    line: usize,
+    col: usize,
 }
 
 /// Trys to parse the next available token within the provided source code
 /// string, starting at the given char index. Any leading whitespace chars are
 /// skipped. The number of skipped characters is returned as the second argument
 /// within the returned tuple.
-pub fn read_token(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
+pub fn read_token(code: &str, char_index: usize) -> Option<(TokenType, usize, usize)> {
     let skipped = skip_whitespace(&code, char_index);
     if skipped == None {
         return None;
@@ -39,7 +70,43 @@ pub fn read_token(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
         return None;
     }
 
-    return Some((token.unwrap(), skipped.unwrap()));
+    let (t, len) = token.unwrap();
+    return Some((t, skipped.unwrap(), len));
+}
+
+/// Reads over all tokens within the provided code string and returns them in
+/// an ordered vector list.
+pub fn read_all_tokens(code: &str) -> Vec<Token> {
+    let mut tokens = vec![];
+    let mut char_index = 0;
+
+    let mut line = 0;
+    let mut col = 0;
+
+    loop {
+        let next = read_token(&code, char_index);
+        if next == None {
+            return tokens;
+        }
+
+        let (t, skipped, len) = next.unwrap();
+        let new_line = t == TokenType::NewLine;
+
+        col += skipped;
+        tokens.push(Token {
+            token_type: t,
+            line: line,
+            col: col,
+        });
+
+        col += len;
+        char_index += skipped + len;
+
+        if new_line {
+            line += 1;
+            col = 0;
+        }
+    }
 }
 
 /// Counts the number of whitespace characters that need to be skipped in order
@@ -65,9 +132,10 @@ fn skip_whitespace(code: &str, char_index: usize) -> Option<usize> {
 
 /// Iterates over all token handlers in order and attempts to parse the token at
 /// the current char index. If a handler returns a null value, the next handler
-/// in the list is attempted. Otherwise, the parsed token type is returned.
-fn try_token_handlers(code: &str, char_index: usize) -> Option<TokenType> {
-    for handler in HANDLERS {
+/// in the list is attempted. Otherwise, the parsed token type is returned. The
+/// length of the token is also returns as the second argument within the tuple.
+fn try_token_handlers(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
+    for handler in get_handlers() {
         let token = handler(&code, char_index);
         if token != None {
             return token;
@@ -78,7 +146,7 @@ fn try_token_handlers(code: &str, char_index: usize) -> Option<TokenType> {
 }
 
 /// Tries to parse the token as a known keyword or a generic identifier name.
-fn name_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
+fn name_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
     let mut chars = code.chars().skip(char_index);
 
     let mut len = 0;
@@ -100,14 +168,15 @@ fn name_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
 
     let content = &code[char_index..char_index + len];
     return Some(match content {
-        "function" => TokenType::FunctionKeyword,
-        _ => TokenType::Name(String::from(content)),
+        "export" => (TokenType::ExportKeyword, 6),
+        "function" => (TokenType::FunctionKeyword, 8),
+        _ => (TokenType::Name(String::from(content)), content.len()),
     });
 }
 
 /// Tries to parse a string token surrounded by either single quotes or double
 /// quotes.
-fn string_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
+fn string_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
     let mut chars = code.chars().skip(char_index);
 
     let string_char = chars.next();
@@ -131,9 +200,9 @@ fn string_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
             skip_next = false;
         } else {
             if c == string_char {
-                return Some(TokenType::String(String::from(
+                return Some((TokenType::String(String::from(
                     &code[char_index..char_index + len],
-                )));
+                )), len));
             } else if c == Some('\\') {
                 skip_next = true;
             }
@@ -144,7 +213,7 @@ fn string_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
 /// Tries to read and parse the next available token as a number. The token is
 /// returned as a float if the number contains a decimal point and is returned
 /// as an integer if it does not.
-fn number_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
+fn number_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
     let mut chars = code.chars().skip(char_index);
 
     let mut len = 0;
@@ -163,16 +232,34 @@ fn number_token_handler(code: &str, char_index: usize) -> Option<TokenType> {
     let content = String::from(&code[char_index..char_index + len]);
 
     match content.parse::<i64>() {
-        Ok(d) => return Some(TokenType::Integer(d)),
+        Ok(d) => return Some((TokenType::Integer(d), content.len())),
         _ => {}
     }
 
     match content.parse::<f64>() {
-        Ok(d) => return Some(TokenType::Float(d)),
+        Ok(d) => return Some((TokenType::Float(d), content.len())),
         _ => {}
     }
 
     return None;
+}
+
+fn symbol_token_handler(code: &str, char_index: usize, symbol: &str, token_type: TokenType) -> Option<(TokenType, usize)> {
+    let mut source = code.chars().skip(char_index);
+    let mut target = symbol.chars();
+
+    loop {
+        let source_char = source.next();
+        let target_char = target.next();
+
+        if target_char == None {
+            return Some((token_type, symbol.len()));
+        }
+
+        if target_char != source_char {
+            return None;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -186,7 +273,7 @@ mod tests {
 
         assert_eq!(
             token,
-            Some((TokenType::Name(String::from("apple7")), 2usize))
+            Some((TokenType::Name(String::from("apple7")), 2usize, 6usize))
         );
     }
 
@@ -195,7 +282,7 @@ mod tests {
         let code = "export function my_func()";
         let token = read_token(&code, 6);
 
-        assert_eq!(token, Some((TokenType::FunctionKeyword, 1usize)));
+        assert_eq!(token, Some((TokenType::FunctionKeyword, 1usize, 8usize)));
     }
 
     #[test]
@@ -205,7 +292,7 @@ mod tests {
 
         assert_eq!(
             token,
-            Some((TokenType::String(String::from("'Hello, world!'")), 1usize))
+            Some((TokenType::String(String::from("'Hello, world!'")), 1usize, 15usize))
         );
     }
 
@@ -221,7 +308,7 @@ mod tests {
         let code = "123";
         let token = read_token(&code, 0);
 
-        assert_eq!(token, Some((TokenType::Integer(123i64), 0usize)));
+        assert_eq!(token, Some((TokenType::Integer(123i64), 0usize, 3usize)));
     }
 
     #[test]
@@ -229,6 +316,20 @@ mod tests {
         let code = "10.5";
         let token = read_token(&code, 0);
 
-        assert_eq!(token, Some((TokenType::Float(10.5f64), 0usize)));
+        assert_eq!(token, Some((TokenType::Float(10.5f64), 0usize, 4usize)));
+    }
+
+    #[test]
+    fn parse_all_tokens() {
+        let code = "export function hello_world\n  'hi'";
+        let tokens = read_all_tokens(&code);
+
+        assert_eq!(tokens, vec![
+            Token { token_type: TokenType::ExportKeyword, line: 0, col: 0 },
+            Token { token_type: TokenType::FunctionKeyword, line: 0, col: 7 },
+            Token { token_type: TokenType::Name(String::from("hello_world")), line: 0, col: 16 },
+            Token { token_type: TokenType::NewLine, line: 0, col: 27 },
+            Token { token_type: TokenType::String(String::from("'hi'")), line: 1, col: 2 },
+        ]);
     }
 }
