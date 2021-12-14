@@ -9,9 +9,8 @@ type TokenHandler = fn(code: &str, char_index: usize) -> Option<(TokenType, usiz
 /// strings.
 fn get_handlers() -> Vec<TokenHandler> {
     return vec![
-        number_token_handler,
-        name_token_handler,
         string_token_handler,
+        number_token_handler,
 
         |code, char_index| symbol_token_handler(code, char_index, "<=", TokenType::LTEConditional),
         |code, char_index| symbol_token_handler(code, char_index, ">=", TokenType::GTEConditional),
@@ -21,6 +20,11 @@ fn get_handlers() -> Vec<TokenHandler> {
 
         |code, char_index| symbol_token_handler(code, char_index, "\n", TokenType::NewLine),
         |code, char_index| symbol_token_handler(code, char_index, "=", TokenType::VariableAssignment),
+
+        |code, char_index| name_token_handler(code, char_index, vec![
+            ("export", TokenType::ExportKeyword),
+            ("function", TokenType::FunctionKeyword),
+        ]),
     ];
 }
 
@@ -146,7 +150,7 @@ fn try_token_handlers(code: &str, char_index: usize) -> Option<(TokenType, usize
 }
 
 /// Tries to parse the token as a known keyword or a generic identifier name.
-fn name_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usize)> {
+fn name_token_handler(code: &str, char_index: usize, keywords: Vec<(&str, TokenType)>) -> Option<(TokenType, usize)> {
     let mut chars = code.chars().skip(char_index);
 
     let mut len = 0;
@@ -167,11 +171,13 @@ fn name_token_handler(code: &str, char_index: usize) -> Option<(TokenType, usize
     }
 
     let content = &code[char_index..char_index + len];
-    return Some(match content {
-        "export" => (TokenType::ExportKeyword, 6),
-        "function" => (TokenType::FunctionKeyword, 8),
-        _ => (TokenType::Name(String::from(content)), content.len()),
-    });
+    for (keyword, token_type) in keywords {
+        if content.eq(keyword) {
+            return Some((token_type, keyword.len()));
+        }
+    }
+
+    return Some((TokenType::Name(String::from(content)), content.len()));
 }
 
 /// Tries to parse a string token surrounded by either single quotes or double
@@ -249,14 +255,12 @@ fn symbol_token_handler(code: &str, char_index: usize, symbol: &str, token_type:
     let mut target = symbol.chars();
 
     loop {
-        let source_char = source.next();
         let target_char = target.next();
-
         if target_char == None {
             return Some((token_type, symbol.len()));
         }
 
-        if target_char != source_char {
+        if target_char != source.next() {
             return None;
         }
     }
