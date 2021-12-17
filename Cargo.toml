@@ -14,3 +14,6 @@ exclude = [".github/*"]
 [dependencies]
 regex = "1"
 enum-map = "0.6.4"
+strum = "0.23"
+strum_macros = "0.23"
+readonly = "0.2"
