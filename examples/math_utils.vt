@@ -1,0 +1,74 @@
+@display "Complex Number"
+@description "Represents a number with a real value and an imaginary value."
+@property real "Real Component" : "The real component of complex number."
+@property imaginary "Imaginary Component" : "The imaginary component of complex number."
+export struct ComplexNumber {
+    real: Number
+    imaginary: Number
+}
+
+
+@display "Complex Number to String"
+@description "Converts a complex number into a formatted string."
+@param num "Complex Number"   : "The complex number to convert."
+@return str "Formatted String" : "The formatted string."
+export function complex_number_to_string {
+    params (num: ComplexNumber)
+
+    a = str(num.real)
+    b = str(num.imaginary)
+    array = String[a, b]
+    str = format("{0} + {1}i", array)
+
+    return (str: String)
+}
+
+
+@display      "Is Prime?"
+@description  "Checks whether or not a number is prime."
+@param num    "Number"    : "The number to check."
+@return prime "Is Prime?" : "True if the number is prime, false otherwise."
+export function is_prime {
+    params (num: Number)
+
+    is_factor = function {
+        params (value: Number)
+        a = mod(value, num)
+        keep = a != 0
+        return (keep: Bool)
+    }
+
+    r = range(2, num)
+    factors = filter(r, is_factor)
+    l = len(factors)
+    is_prime = l == 0
+
+    return (is_prime: Bool)
+}
+
+@display "Math Utilities"
+@description "A collection of useful high level math functions. This is part of an example."
+@author"TheDudeFromCI <thedudefromci@gmail.com>"
+@version "1.0.0"
+graph {
+    ComplexNumber.real: Number[0, 0, 1, 2]
+    ComplexNumber.imaginary: Number[0, 2, 1, 2]
+    ComplexNumber.return: Number[2, 1, 1, 2]
+    complex_number_to_string.params: Number[8, 17, 1, 2]
+    complex_number_to_string.a: Number[10, 15, 1, 2]
+    complex_number_to_string.b: Number[10, 19, 1, 2]
+    complex_number_to_string.array: Number[13, 17, 1, 2]
+    complex_number_to_string.str: Number[15, 17, 1, 2]
+    complex_number_to_string.return: Number[17, 17, 1, 2]
+    is_prime.params: Number[3, 2, 1, 2]
+    is_prime.is_factor: Number[-5, -1, 7, 1]
+    is_prime.is_factor.params: Number[-2, 0, 1, 2]
+    is_prime.is_factor.a: Number[0, 0, 1, 2]
+    is_prime.is_factor.keep: Number[2, 0, 1, 2]
+    is_prime.is_factor.return: Number[4, 0, 1, 2]
+    is_prime.r: Number[5, 3, 1, 2]
+    is_prime.factors: Number[7, 3, 1, 2]
+    is_prime.l: Number[9, 3, 1, 2]
+    is_prime.is_prime: Number[11, 3, 1, 2]
+    is_prime.return: Number[13, 3, 1, 2]
+}
