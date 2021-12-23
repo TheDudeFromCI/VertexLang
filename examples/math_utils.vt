@@ -1,3 +1,13 @@
+@display "Pi"
+@description "An aproximation of the mathmatical constant, 'pi'."
+export const PI = 3.1415926535
+
+
+@display "E"
+@description "An aproximation of the mathmatical constant, 'e'."
+export const E = 2.718281828459
+
+
 @display "Complex Number"
 @description "Represents a number with a real value and an imaginary value."
 @property real "Real Component" : "The real component of complex number."
@@ -26,7 +36,7 @@ export function complex_number_to_string {
 
 @display      "Is Prime?"
 @description  "Checks whether or not a number is prime."
-@param num    "Number"    : "The number to check."
+@param num    "Number" : "The number to check."
 @return prime "Is Prime?" : "True if the number is prime, false otherwise."
 export function is_prime {
     params (num: Number)
