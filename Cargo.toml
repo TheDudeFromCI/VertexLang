@@ -1,6 +1,6 @@
 [package]
 name = "vertex_lang"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["TheDudeFromCI <thedudefromci@gmail.com>"]
 description = "The compiler and interprter for the Vertex programming language."
@@ -12,8 +12,6 @@ readme = "README.md"
 exclude = [".github/*"]
 
 [dependencies]
-regex = "1"
-enum-map = "0.6.4"
 strum = "0.23"
 strum_macros = "0.23"
-readonly = "0.2"
+clap = { version = "3.2.20", features = ["derive"] }

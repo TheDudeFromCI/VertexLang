@@ -1,16 +1,16 @@
-@display "Pi"
+@display     "Pi"
 @description "An aproximation of the mathmatical constant, 'pi'."
 export const PI = 3.1415926535
 
 
-@display "E"
+@display     "E"
 @description "An aproximation of the mathmatical constant, 'e'."
 export const E = 2.718281828459
 
 
-@display "Complex Number"
-@description "Represents a number with a real value and an imaginary value."
-@property real "Real Component" : "The real component of complex number."
+@display            "Complex Number"
+@description        "Represents a number with a real value and an imaginary value."
+@property real      "Real Component" : "The real component of complex number."
 @property imaginary "Imaginary Component" : "The imaginary component of complex number."
 export struct ComplexNumber {
     real: Number
@@ -18,10 +18,10 @@ export struct ComplexNumber {
 }
 
 
-@display "Complex Number to String"
+@display     "Complex Number to String"
 @description "Converts a complex number into a formatted string."
-@param num "Complex Number"   : "The complex number to convert."
-@return str "Formatted String" : "The formatted string."
+@param num   "Complex Number" : "The complex number to convert."
+@return str  "Formatted String" : "The formatted string."
 export function complex_number_to_string {
     params (num: ComplexNumber)
 
@@ -56,10 +56,10 @@ export function is_prime {
     return (is_prime: Bool)
 }
 
-@display "Math Utilities"
+@display     "Math Utilities"
 @description "A collection of useful high level math functions. This is part of an example."
-@author"TheDudeFromCI <thedudefromci@gmail.com>"
-@version "1.0.0"
+@author      "TheDudeFromCI <thedudefromci@gmail.com>"
+@version     "1.0.0"
 graph {
     ComplexNumber.real: Number[0, 0, 1, 2]
     ComplexNumber.imaginary: Number[0, 2, 1, 2]
