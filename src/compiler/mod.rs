@@ -5,26 +5,26 @@ use ast::Node;
 use std::fmt;
 
 pub trait Compile {
-  type Output;
+    type Output;
 
-  fn eval_from_ast(ast: Vec<Node>) -> Result<Vec<Self::Output>, CompilerError>;
+    fn eval_from_ast(ast: Vec<Node>) -> Result<Vec<Self::Output>, CompilerError>;
 
-  fn eval_from_source(source: &str) -> Result<Vec<Self::Output>, CompilerError> {
-    return Self::eval_from_ast(Self::compile_from_source(source)?);
-  }
+    fn eval_from_source(source: &str) -> Result<Vec<Self::Output>, CompilerError> {
+        return Self::eval_from_ast(Self::compile_from_source(source)?);
+    }
 
-  fn compile_from_source(source: &str) -> Result<Vec<Node>, CompilerError> {
-    return parser::parse(source);
-  }
+    fn compile_from_source(source: &str) -> Result<Vec<Node>, CompilerError> {
+        return parser::parse(source);
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct CompilerError {
-  message: String,
+    message: String,
 }
 
 impl fmt::Display for CompilerError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "Failed to compile!\n{}", self.message)
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Failed to compile!\n{}", self.message)
+    }
 }
