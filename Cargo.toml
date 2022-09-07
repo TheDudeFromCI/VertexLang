@@ -12,6 +12,6 @@ readme = "README.md"
 exclude = [".github/*"]
 
 [dependencies]
-strum = "0.23"
-strum_macros = "0.23"
 clap = { version = "3.2.20", features = ["derive"] }
+pest = "2.3.0"
+pest_derive = "2.3.0"
