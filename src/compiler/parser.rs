@@ -1,16 +1,17 @@
 extern crate pest;
 use super::ast::*;
 use super::CompilerError;
+use ordered_float::OrderedFloat;
 use pest::iterators::Pair;
 use pest::Parser;
 
 #[derive(Parser)]
 #[grammar = "compiler/grammar.pest"]
-pub struct CalcParser;
+pub struct VertexLangParser;
 
 pub fn parse(source: &str) -> Result<Vec<Node>, CompilerError> {
   let mut ast: Vec<Node> = vec![];
-  let pairs = CalcParser::parse(Rule::Program, source);
+  let pairs = VertexLangParser::parse(Rule::Program, source);
 
   let pairs = match pairs {
     Ok(p) => p,
@@ -67,7 +68,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
 fn build_ast_from_term(pair: Pair<Rule>) -> Node {
   match pair.as_rule() {
     Rule::Int => Node::Int(pair.as_str().parse::<i64>().unwrap()),
-    Rule::Float => Node::Float(pair.as_str().parse::<f64>().unwrap()),
+    Rule::Float => Node::Float(OrderedFloat::from(pair.as_str().parse::<f64>().unwrap())),
     _ => build_ast_from_expr(pair),
   }
 }
@@ -90,95 +91,23 @@ fn parse_binary_expr(pair: pest::iterators::Pair<Rule>, lhs: Node, rhs: Node) ->
 #[cfg(test)]
 mod tests {
   use super::*;
-  #[test]
-  fn basics() {
-    assert!(parse("b").is_err());
-  }
 
   #[test]
-  fn unary_expr() {
-    let plus_one = parse("+1");
-    assert!(plus_one.is_ok());
+  fn basic_math_order_of_operations() {
     assert_eq!(
-      plus_one.clone().unwrap(),
-      vec![Node::UnaryExpr {
-        op: Operator::Plus,
-        child: Box::new(Node::Int(1))
-      }]
-    );
-    assert_eq!(format!("{}", plus_one.unwrap()[0]), "+1");
-
-    let neg_two = parse("-2");
-    assert!(neg_two.is_ok());
-    assert_eq!(
-      neg_two.clone().unwrap(),
-      vec![Node::UnaryExpr {
-        op: Operator::Minus,
-        child: Box::new(Node::Int(2))
-      }]
-    );
-    assert_eq!(format!("{}", neg_two.unwrap()[0]), "-2");
-  }
-  #[test]
-  fn binary_expr() {
-    let sum = parse("1 + 2");
-    assert!(sum.is_ok());
-    assert_eq!(
-      sum.clone().unwrap(),
-      vec![Node::BinaryExpr {
+      &parse("1 + ~2.0 * 3").unwrap()[0],
+      &Node::BinaryExpr {
         op: Operator::Plus,
         lhs: Box::new(Node::Int(1)),
-        rhs: Box::new(Node::Int(2))
-      }]
+        rhs: Box::new(Node::BinaryExpr {
+          op: Operator::Multiply,
+          lhs: Box::new(Node::UnaryExpr {
+            op: Operator::BitwiseNegate,
+            child: Box::new(Node::Float(OrderedFloat(2.0)))
+          }),
+          rhs: Box::new(Node::Int(3))
+        })
+      }
     );
-    assert_eq!(format!("{}", sum.unwrap()[0]), "1 + 2");
-    let minus = parse("1   -  \t  2");
-    assert!(minus.is_ok());
-    assert_eq!(
-      minus.clone().unwrap(),
-      vec![Node::BinaryExpr {
-        op: Operator::Minus,
-        lhs: Box::new(Node::Int(1)),
-        rhs: Box::new(Node::Int(2))
-      }]
-    );
-    assert_eq!(format!("{}", minus.unwrap()[0]), "1 - 2");
-    // fails as there's no rhs:
-    // let paran_sum = parse("(1 + 2)");
-    // assert!(paran_sum.is_ok());
-  }
-
-  #[test]
-  fn nested_expr() {
-    fn test_expr(expected: &str, src: &str) {
-      assert_eq!(
-        expected,
-        parse(src)
-          .unwrap()
-          .iter()
-          .fold(String::new(), |acc, arg| acc + &format!("{}", &arg))
-      );
-    }
-
-    test_expr("1 + 2 + 3", "(1 + 2) + 3");
-    test_expr("1 + 2 + 3", "1 + (2 + 3)");
-    test_expr("1 + 2 + 3 + 4", "1 + (2 + (3 + 4))");
-    test_expr("1 + 2 + 3 - 4", "(1 + 2) + (3 - 4)");
-  }
-
-  #[test]
-  fn multiple_operators() {
-    assert_eq!(
-      parse("1+2+3").unwrap(),
-      vec![Node::BinaryExpr {
-        op: Operator::Plus,
-        lhs: Box::new(Node::BinaryExpr {
-          op: Operator::Plus,
-          lhs: Box::new(Node::Int(1)),
-          rhs: Box::new(Node::Int(2)),
-        }),
-        rhs: Box::new(Node::Int(3)),
-      }]
-    )
   }
 }

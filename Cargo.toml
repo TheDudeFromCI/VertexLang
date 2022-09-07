@@ -13,5 +13,6 @@ exclude = [".github/*"]
 
 [dependencies]
 clap = { version = "3.2.20", features = ["derive"] }
+ordered-float = "3.0.0"
 pest = "2.3.0"
 pest_derive = "2.3.0"

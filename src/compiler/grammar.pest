@@ -21,7 +21,7 @@ PowerOp = { "**" }
 MulDivOp = { "*" | "/" | "%" | "//" }
 AddSubOp = { "+" | "-" }
 
-Term = { ("(" ~ Expr ~ ")") | Int | Float | String | ENotation | Boolean | Function | Identifier }
+Term = { ("(" ~ Expr ~ ")") | ENotation | Float | Int | String | Boolean | Function | Identifier }
 L1 = { UnaryOp? ~ Term }
 L2 = { L1 ~ (PowerOp ~ L1)* }
 L3 = { L2 ~ (MulDivOp ~ L2)* }

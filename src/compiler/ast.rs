@@ -1,3 +1,4 @@
+use ordered_float::OrderedFloat;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -46,10 +47,10 @@ impl fmt::Display for Operator {
   }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
   Int(i64),
-  Float(f64),
+  Float(OrderedFloat<f64>),
   UnaryExpr {
     op: Operator,
     child: Box<Node>,
