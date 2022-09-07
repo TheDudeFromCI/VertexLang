@@ -1,6 +1,11 @@
 mod compiler;
 use clap::{Parser, Subcommand};
+use compiler::interpreter::Interpreter;
+use compiler::Compile;
 use std::fs;
+
+#[macro_use]
+extern crate pest_derive;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
@@ -35,9 +40,14 @@ fn main() {
     }
 
     Subcommands::Compile { file } => {
+      println!("Compiling file: {:?}", file);
       let code = fs::read_to_string(file).unwrap();
-      let tokens = compiler::token_reader::read_all_tokens(&code);
-      println!("Tokens: {:?}", tokens);
+      let val = Interpreter::compile_from_source(&code);
+
+      match val {
+        Ok(v) => println!("{}", v[0]),
+        Err(e) => println!("{}", e),
+      }
     }
   }
 }
