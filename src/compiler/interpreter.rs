@@ -8,15 +8,9 @@ pub struct Eval;
 impl Compile for Interpreter {
     type Output = i64;
 
-    fn eval_from_ast(ast: Vec<Node>) -> Result<Vec<Self::Output>, CompilerError> {
-        let mut outputs: Vec<Self::Output> = vec![];
+    fn eval_from_ast(node: Node) -> Result<Self::Output, CompilerError> {
         let evaluator = Eval::new();
-
-        for node in ast {
-            outputs.push(evaluator.eval(&node)?);
-        }
-
-        return Ok(outputs);
+        Ok(evaluator.eval(&node)?)
     }
 }
 

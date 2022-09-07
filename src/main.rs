@@ -45,7 +45,7 @@ fn main() {
             let val = Interpreter::compile_from_source(&code);
 
             match val {
-                Ok(v) => println!("{}", v[0]),
+                Ok(v) => println!("{}", v),
                 Err(e) => println!("{}", e),
             }
         }

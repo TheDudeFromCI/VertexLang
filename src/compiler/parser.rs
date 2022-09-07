@@ -9,11 +9,9 @@ use pest::Parser;
 #[grammar = "compiler/grammar.pest"]
 pub struct VertexLangParser;
 
-pub fn parse(source: &str) -> Result<Vec<Node>, CompilerError> {
-    let mut ast: Vec<Node> = vec![];
+pub fn parse(source: &str) -> Result<Node, CompilerError> {
     let pairs = VertexLangParser::parse(Rule::Program, source);
-
-    let pairs = match pairs {
+    let mut pairs = match pairs {
         Ok(p) => p,
         Err(e) => {
             return Err(CompilerError {
@@ -22,13 +20,9 @@ pub fn parse(source: &str) -> Result<Vec<Node>, CompilerError> {
         }
     };
 
-    for pair in pairs {
-        if let Rule::Expr = pair.as_rule() {
-            ast.push(build_ast_from_expr(pair));
-        }
-    }
-
-    return Ok(ast);
+    let program = pairs.next().unwrap();
+    let root = build_ast_from_expr(program);
+    Ok(root)
 }
 
 fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
@@ -95,8 +89,8 @@ mod tests {
     #[test]
     fn basic_math_order_of_operations() {
         assert_eq!(
-            &parse("1 + ~2.0 * 3").unwrap()[0],
-            &Node::BinaryExpr {
+            parse("1 + ~2.0 * 3").unwrap(),
+            Node::BinaryExpr {
                 op: Operator::Plus,
                 lhs: Box::new(Node::Int(1)),
                 rhs: Box::new(Node::BinaryExpr {

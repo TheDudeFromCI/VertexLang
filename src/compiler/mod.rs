@@ -7,13 +7,13 @@ use std::fmt;
 pub trait Compile {
     type Output;
 
-    fn eval_from_ast(ast: Vec<Node>) -> Result<Vec<Self::Output>, CompilerError>;
+    fn eval_from_ast(ast: Node) -> Result<Self::Output, CompilerError>;
 
-    fn eval_from_source(source: &str) -> Result<Vec<Self::Output>, CompilerError> {
+    fn eval_from_source(source: &str) -> Result<Self::Output, CompilerError> {
         return Self::eval_from_ast(Self::compile_from_source(source)?);
     }
 
-    fn compile_from_source(source: &str) -> Result<Vec<Node>, CompilerError> {
+    fn compile_from_source(source: &str) -> Result<Node, CompilerError> {
         return parser::parse(source);
     }
 }
