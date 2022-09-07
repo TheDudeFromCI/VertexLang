@@ -60,6 +60,13 @@ pub enum Node {
         lhs: Box<Node>,
         rhs: Box<Node>,
     },
+    ExprList {
+        exprs: Vec<Box<Node>>,
+    },
+    Function {
+        name: String,
+        params: Box<Node>,
+    },
 }
 
 impl fmt::Display for Node {
@@ -69,6 +76,18 @@ impl fmt::Display for Node {
             Node::Float(n) => write!(f, "{:.4}", n),
             Node::UnaryExpr { op, child } => write!(f, "({}{})", op, child),
             Node::BinaryExpr { op, lhs, rhs } => write!(f, "({} {} {})", lhs, op, rhs),
+            Node::ExprList { exprs } => write!(f, "{}", format_params(exprs)),
+            Node::Function { name, params } => write!(f, "{}({})", name, params),
         }
     }
+}
+
+fn format_params(params: &Vec<Box<Node>>) -> String {
+    let mut s = String::new();
+
+    for param in params {
+        s.push_str(&format!("{}", param))
+    }
+
+    return s;
 }

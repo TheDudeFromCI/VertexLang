@@ -28,6 +28,13 @@ pub fn parse(source: &str) -> Result<Node, CompilerError> {
 fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
     match pair.as_rule() {
         Rule::Expr => build_ast_from_expr(pair.into_inner().next().unwrap()),
+        Rule::ExprList => {
+            let mut exprs = vec![];
+            for pair in pair.into_inner() {
+                exprs.push(Box::new(build_ast_from_expr(pair)));
+            }
+            return Node::ExprList { exprs: exprs };
+        }
         Rule::L4 | Rule::L3 | Rule::L2 => {
             let mut pair = pair.into_inner();
             let mut lhs = build_ast_from_term(pair.next().unwrap());
@@ -63,8 +70,27 @@ fn build_ast_from_term(pair: Pair<Rule>) -> Node {
     match pair.as_rule() {
         Rule::Int => Node::Int(pair.as_str().parse::<i64>().unwrap()),
         Rule::Float => Node::Float(OrderedFloat::from(pair.as_str().parse::<f64>().unwrap())),
+        Rule::Function => parse_function_expr(pair),
         _ => build_ast_from_expr(pair),
     }
+}
+
+fn parse_function_expr(pair: Pair<Rule>) -> Node {
+    let mut pair = pair.into_inner();
+    let name = pair.next().unwrap().as_str().to_owned();
+
+    let expr_list = pair.next();
+    let expr_list_node: Node;
+    if expr_list.is_none() {
+        expr_list_node = Node::ExprList { exprs: vec![] }
+    } else {
+        expr_list_node = build_ast_from_expr(expr_list.unwrap());
+    }
+
+    return Node::Function {
+        name: name,
+        params: Box::new(expr_list_node),
+    };
 }
 
 fn parse_unary_expr(pair: Pair<Rule>, child: Node) -> Node {
@@ -100,6 +126,33 @@ mod tests {
                         child: Box::new(Node::Float(OrderedFloat(2.0)))
                     }),
                     rhs: Box::new(Node::Int(3))
+                })
+            }
+        );
+    }
+
+    #[test]
+    fn parse_function_expr() {
+        assert_eq!(
+            parse("pi() * max(2 + 3, 2.0)").unwrap(),
+            Node::BinaryExpr {
+                op: Operator::Multiply,
+                lhs: Box::new(Node::Function {
+                    name: String::from("pi"),
+                    params: Box::new(Node::ExprList { exprs: vec![] }),
+                }),
+                rhs: Box::new(Node::Function {
+                    name: String::from("max"),
+                    params: Box::new(Node::ExprList {
+                        exprs: vec![
+                            Box::new(Node::BinaryExpr {
+                                op: Operator::Plus,
+                                lhs: Box::new(Node::Int(2)),
+                                rhs: Box::new(Node::Int(3)),
+                            }),
+                            Box::new(Node::Float(OrderedFloat(2.0)))
+                        ]
+                    })
                 })
             }
         );
