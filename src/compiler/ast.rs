@@ -124,7 +124,7 @@ pub enum DataType {
     Unknown,
     Struct {
         name: String,
-        fields: Vec<Box<DataType>>,
+        fields: Vec<(String, Box<DataType>)>,
     },
 }
 
@@ -142,11 +142,11 @@ impl fmt::Display for DataType {
         }
     }
 }
-fn format_fields(fields: &Vec<Box<DataType>>) -> String {
+fn format_fields(fields: &Vec<(String, Box<DataType>)>) -> String {
     let mut s = String::new();
 
-    for field in fields {
-        s.push_str(&format!("{}\n", field))
+    for (name, dtype) in fields {
+        s.push_str(&format!("  {}: {}\n", name, dtype))
     }
 
     return s;
