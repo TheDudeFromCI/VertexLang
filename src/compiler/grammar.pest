@@ -4,14 +4,14 @@ COMMENT_BLOCK = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 
 Int = @{ ("+" | "-")? ~ ASCII_DIGIT+ }
 Float = @{ ("+" | "-")? ~ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+)) }
-String = @{ PUSH("\"" | "'" | "`") ~ StringInterior ~ POP  }
+String = ${ PUSH("\"" | "'" | "`") ~ StringInterior ~ POP  }
 StringInterior = @{ Char* }
 Char = {
     !(PEEK | "\\") ~ ANY
     | "\\" ~ (PEEK | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }
-ENotation = @{ (Int | Float) ~ ^"e" ~ Int }
+ENotation = @{ (Float | Int) ~ ^"e" ~ Int }
 Boolean = @{ "true" | "false" }
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 Function = { Identifier ~ "(" ~ ExprList? ~ ")" }
