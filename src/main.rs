@@ -1,7 +1,5 @@
 mod compiler;
 use clap::{Parser, Subcommand};
-use compiler::interpreter::Interpreter;
-use compiler::Compile;
 use std::fs;
 
 #[macro_use]
@@ -42,10 +40,10 @@ fn main() {
         Subcommands::Compile { file } => {
             println!("Compiling file: {:?}", file);
             let code = fs::read_to_string(file).unwrap();
-            let val = Interpreter::compile_from_source(&code);
+            let val = compiler::compile(&code);
 
             match val {
-                Ok(v) => println!("{}", v),
+                Ok(_) => println!("Compiled."),
                 Err(e) => println!("{}", e),
             }
         }

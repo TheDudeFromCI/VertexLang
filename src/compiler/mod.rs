@@ -1,21 +1,11 @@
 pub mod ast;
-pub mod interpreter;
 pub mod parser;
-use ast::Node;
 use std::fmt;
 
-pub trait Compile {
-    type Output;
+pub fn compile(source: &str) -> Result<(), CompilerError> {
+    let _root_node = parser::parse(source)?;
 
-    fn eval_from_ast(ast: Node) -> Result<Self::Output, CompilerError>;
-
-    fn eval_from_source(source: &str) -> Result<Self::Output, CompilerError> {
-        return Self::eval_from_ast(Self::compile_from_source(source)?);
-    }
-
-    fn compile_from_source(source: &str) -> Result<Node, CompilerError> {
-        return parser::parse(source);
-    }
+    Ok(())
 }
 
 #[derive(Debug, Clone)]
