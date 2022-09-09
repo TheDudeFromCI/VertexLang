@@ -1,4 +1,5 @@
 use std::fmt;
+use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DataType {
@@ -27,12 +28,13 @@ impl fmt::Display for DataType {
         }
     }
 }
+
 fn format_fields(fields: &Vec<(String, Box<DataType>)>) -> String {
     let mut s = String::new();
 
     for (name, dtype) in fields {
-        s.push_str(&format!("  {}: {}\n", name, dtype))
+    	writeln!(s, "  {}: {}", name, dtype).unwrap();
     }
 
-    return s;
+    s
 }

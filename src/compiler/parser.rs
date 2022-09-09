@@ -32,9 +32,9 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
         Rule::ExprList => {
             let mut exprs = vec![];
             for pair in pair.into_inner() {
-                exprs.push(Box::new(build_ast_from_expr(pair)));
+                exprs.push(build_ast_from_expr(pair));
             }
-            return Node::ExprList { exprs: exprs };
+            Node::ExprList { exprs }
         }
         Rule::L4 | Rule::L3 | Rule::L2 => {
             let mut pair = pair.into_inner();
@@ -60,7 +60,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
             }
 
             let term = build_ast_from_term(term.unwrap());
-            return parse_unary_expr(op, term);
+            parse_unary_expr(op, term)
         }
         Rule::Term => build_ast_from_term(pair.into_inner().next().unwrap()),
         unknown => panic!("Unknown expression: {:?}", unknown),
@@ -85,18 +85,16 @@ fn parse_function_expr(pair: Pair<Rule>) -> Node {
     let name = pair.next().unwrap().as_str().to_owned();
 
     let expr_list = pair.next();
-    let expr_list_node: Node;
-    if expr_list.is_none() {
-        expr_list_node = Node::ExprList { exprs: vec![] }
-    } else {
-        expr_list_node = build_ast_from_expr(expr_list.unwrap());
-    }
+	let expr_list_node = match expr_list {
+		Some(e) => build_ast_from_expr(e),
+		None => Node::ExprList { exprs: vec![] },
+	};
 
-    return Node::Function {
-        name: name,
+    Node::Function {
+        name,
         params: Box::new(expr_list_node),
         rtype: DataType::Unknown,
-    };
+    }
 }
 
 fn parse_unary_expr(pair: Pair<Rule>, child: Node) -> Node {

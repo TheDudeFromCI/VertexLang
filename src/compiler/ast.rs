@@ -66,7 +66,7 @@ pub enum Node {
         rtype: DataType,
     },
     ExprList {
-        exprs: Vec<Box<Node>>,
+        exprs: Vec<Node>,
     },
     Function {
         name: String,
@@ -103,15 +103,15 @@ impl fmt::Display for Node {
     }
 }
 
-fn format_params(params: &Vec<Box<Node>>) -> String {
+fn format_params(params: &Vec<Node>) -> String {
     let mut s = String::new();
 
     for param in params {
-        if s.len() > 0 {
+        if !s.is_empty() {
             s.push_str(", ");
         }
-        s.push_str(&format!("{}", param))
+        s.push_str(param.to_string().as_str())
     }
 
-    return s;
+    s
 }

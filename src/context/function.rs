@@ -21,7 +21,7 @@ pub struct Procedure {
 
 pub struct Function {
     name: String,
-    variables: Vec<Box<Variable>>,
+    variables: Vec<Variable>,
     input_vars: Vec<usize>,
     output_vars: Vec<usize>,
     procedures: Vec<Procedure>,
@@ -38,7 +38,7 @@ pub struct Context {
 impl Function {
     pub fn new(name: String) -> Self {
         Function {
-            name: name,
+            name,
             variables: vec![],
             input_vars: vec![],
             output_vars: vec![],
@@ -48,43 +48,35 @@ impl Function {
 
     pub fn add_variable(&mut self, name: String, dtype: DataType) -> usize {
         let index = self.variables.len();
-        let variable = Variable {
-            name: name,
-            dtype: dtype,
-            index: index,
-        };
-        self.variables.push(Box::new(variable));
-        return index;
+        let variable = Variable { name, dtype, index };
+        self.variables.push(variable);
+        index
     }
 
     pub fn add_input(&mut self, name: String, dtype: DataType) -> usize {
         let index = self.add_variable(name, dtype);
         self.input_vars.push(index);
-        return index;
+        index
     }
 
     pub fn add_output(&mut self, name: String, dtype: DataType) -> usize {
         let index = self.add_variable(name, dtype);
         self.output_vars.push(index);
-        return index;
+        index
     }
 
-    pub fn get_variable(&mut self, var_name: &str) -> Option<&mut Box<Variable>> {
+    pub fn get_variable(&mut self, var_name: &str) -> Option<&mut Variable> {
         for var in &mut self.variables {
             if (*var).name.eq(var_name) {
                 return Some(var);
             }
         }
 
-        return None;
+        None
     }
 
     pub fn add_procedure(&mut self, func_index: usize, inputs: Vec<usize>, outputs: Vec<usize>) {
-        let proc = Procedure {
-            func_index: func_index,
-            inputs: inputs,
-            outputs: outputs,
-        };
+        let proc = Procedure { func_index, inputs, outputs };
         self.procedures.push(proc);
     }
 }
@@ -97,11 +89,11 @@ impl Context {
     pub fn add_function(&mut self, callable: Box<dyn Callable>) -> usize {
         let index = self.functions.len();
         self.functions.push(callable);
-        return index;
+        index
     }
 
     pub fn exec(&self, func_index: usize, inputs: Vec<VariableData>) -> Vec<VariableData> {
-        return (*self.functions[func_index]).exec(self, inputs);
+        (*self.functions[func_index]).exec(self, inputs)
     }
 }
 
@@ -112,7 +104,7 @@ impl Callable for Function {
 
         for (index, var) in inputs.iter().enumerate() {
             match &var {
-                Some(v) => vars[self.input_vars[index]] = Some(Rc::clone(&v)),
+                Some(v) => vars[self.input_vars[index]] = Some(Rc::clone(v)),
                 None => vars[self.input_vars[index]] = None,
             };
         }
@@ -123,7 +115,7 @@ impl Callable for Function {
             let mut proc_in: Vec<VariableData> = vec![None; proc.inputs.len()];
             for (index, var) in proc.inputs.iter().enumerate() {
                 match &vars[*var] {
-                    Some(v) => proc_in[index] = Some(Rc::clone(&v)),
+                    Some(v) => proc_in[index] = Some(Rc::clone(v)),
                     None => proc_in[index] = None,
                 }
             }
@@ -139,12 +131,12 @@ impl Callable for Function {
 
         for (index, var_index) in self.output_vars.iter().enumerate() {
             match &vars[*var_index] {
-                Some(v) => outputs[index] = Some(Rc::clone(&v)),
+                Some(v) => outputs[index] = Some(Rc::clone(v)),
                 None => outputs[index] = None,
             }
         }
 
-        return outputs;
+        outputs
     }
 }
 
@@ -153,7 +145,7 @@ impl Callable for AddOperation {
     fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
         let a = *inputs[0].as_ref().unwrap().downcast_ref::<i32>().unwrap();
         let b = *inputs[1].as_ref().unwrap().downcast_ref::<i32>().unwrap();
-        return vec![Some(Rc::new(a + b))];
+        vec![Some(Rc::new(a + b))]
     }
 }
 
@@ -162,7 +154,7 @@ impl Callable for MulOperation {
     fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
         let a = *inputs[0].as_ref().unwrap().downcast_ref::<i32>().unwrap();
         let b = *inputs[1].as_ref().unwrap().downcast_ref::<i32>().unwrap();
-        return vec![Some(Rc::new(a * b))];
+        vec![Some(Rc::new(a * b))]
     }
 }
 
