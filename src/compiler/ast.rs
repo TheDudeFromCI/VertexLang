@@ -1,3 +1,4 @@
+use super::DataType;
 use ordered_float::OrderedFloat;
 use std::fmt;
 
@@ -110,43 +111,6 @@ fn format_params(params: &Vec<Box<Node>>) -> String {
             s.push_str(", ");
         }
         s.push_str(&format!("{}", param))
-    }
-
-    return s;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DataType {
-    Int,
-    Float,
-    String,
-    Bool,
-    Unknown,
-    Struct {
-        name: String,
-        fields: Vec<(String, Box<DataType>)>,
-    },
-}
-
-impl fmt::Display for DataType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match &self {
-            DataType::Int => write!(f, "Int"),
-            DataType::Float => write!(f, "Float"),
-            DataType::String => write!(f, "String"),
-            DataType::Bool => write!(f, "Bool"),
-            DataType::Unknown => write!(f, "?"),
-            DataType::Struct { name, fields } => {
-                write!(f, "{} {{\n{}}}", name, format_fields(fields))
-            }
-        }
-    }
-}
-fn format_fields(fields: &Vec<(String, Box<DataType>)>) -> String {
-    let mut s = String::new();
-
-    for (name, dtype) in fields {
-        s.push_str(&format!("  {}: {}\n", name, dtype))
     }
 
     return s;
