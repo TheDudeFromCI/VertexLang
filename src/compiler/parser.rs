@@ -85,10 +85,10 @@ fn parse_function_expr(pair: Pair<Rule>) -> Node {
     let name = pair.next().unwrap().as_str().to_owned();
 
     let expr_list = pair.next();
-	let expr_list_node = match expr_list {
-		Some(e) => build_ast_from_expr(e),
-		None => Node::ExprList { exprs: vec![] },
-	};
+    let expr_list_node = match expr_list {
+        Some(e) => build_ast_from_expr(e),
+        None => Node::ExprList { exprs: vec![] },
+    };
 
     Node::Function {
         name,

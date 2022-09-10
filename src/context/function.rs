@@ -60,7 +60,11 @@ impl Function {
     }
 
     pub fn add_procedure(&mut self, func_index: usize, inputs: Vec<usize>, outputs: Vec<usize>) {
-        let proc = Procedure { func_index, inputs, outputs };
+        let proc = Procedure {
+            func_index,
+            inputs,
+            outputs,
+        };
         self.procedures.push(proc);
     }
 }

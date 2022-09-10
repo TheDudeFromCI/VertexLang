@@ -33,7 +33,7 @@ fn format_fields(fields: &Vec<(String, Box<DataType>)>) -> String {
     let mut s = String::new();
 
     for (name, dtype) in fields {
-    	writeln!(s, "  {}: {}", name, dtype).unwrap();
+        writeln!(s, "  {}: {}", name, dtype).unwrap();
     }
 
     s
