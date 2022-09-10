@@ -85,7 +85,7 @@ impl Context {
     }
 }
 
-impl Callable for Function { 
+impl Callable for Function {
     fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
         let mut vars: Vec<VariableData> = vec![None; self.variables.len()];
         let mut outputs: Vec<VariableData> = vec![None; self.output_vars.len()];
@@ -131,7 +131,7 @@ impl Callable for Function {
 #[cfg(test)]
 mod tests {
     use super::*;
-	use crate::runtime::math::{AddOperation, MulOperation};
+    use crate::runtime::math::{AddOperation, MulOperation};
 
     #[test]
     fn simple_madd_func() {
