@@ -155,13 +155,13 @@ mod tests {
                     name: String::from("max"),
                     params: Box::new(Node::ExprList {
                         exprs: vec![
-                            Box::new(Node::BinaryExpr {
+                            Node::BinaryExpr {
                                 op: Operator::Plus,
                                 lhs: Box::new(Node::Int(2)),
                                 rhs: Box::new(Node::Int(3)),
                                 rtype: DataType::Unknown,
-                            }),
-                            Box::new(Node::Float(OrderedFloat(2.0)))
+                            },
+                            Node::Float(OrderedFloat(2.0))
                         ]
                     }),
                     rtype: DataType::Unknown,

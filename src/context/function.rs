@@ -1,12 +1,8 @@
-#![allow(dead_code)]
-#![allow(unused)]
-
 use super::datatype::DataType;
 use std::any::Any;
 use std::rc::Rc;
 
 pub struct Variable {
-    name: String,
     dtype: DataType,
     index: usize,
 }
@@ -20,7 +16,6 @@ pub struct Procedure {
 }
 
 pub struct Function {
-    name: String,
     variables: Vec<Variable>,
     input_vars: Vec<usize>,
     output_vars: Vec<usize>,
@@ -36,9 +31,8 @@ pub struct Context {
 }
 
 impl Function {
-    pub fn new(name: String) -> Self {
+    pub fn new() -> Self {
         Function {
-            name,
             variables: vec![],
             input_vars: vec![],
             output_vars: vec![],
@@ -46,33 +40,23 @@ impl Function {
         }
     }
 
-    pub fn add_variable(&mut self, name: String, dtype: DataType) -> usize {
+    pub fn add_variable(&mut self, dtype: DataType) -> usize {
         let index = self.variables.len();
-        let variable = Variable { name, dtype, index };
+        let variable = Variable { dtype, index };
         self.variables.push(variable);
         index
     }
 
-    pub fn add_input(&mut self, name: String, dtype: DataType) -> usize {
-        let index = self.add_variable(name, dtype);
+    pub fn add_input(&mut self, dtype: DataType) -> usize {
+        let index = self.add_variable(dtype);
         self.input_vars.push(index);
         index
     }
 
-    pub fn add_output(&mut self, name: String, dtype: DataType) -> usize {
-        let index = self.add_variable(name, dtype);
+    pub fn add_output(&mut self, dtype: DataType) -> usize {
+        let index = self.add_variable(dtype);
         self.output_vars.push(index);
         index
-    }
-
-    pub fn get_variable(&mut self, var_name: &str) -> Option<&mut Variable> {
-        for var in &mut self.variables {
-            if (*var).name.eq(var_name) {
-                return Some(var);
-            }
-        }
-
-        None
     }
 
     pub fn add_procedure(&mut self, func_index: usize, inputs: Vec<usize>, outputs: Vec<usize>) {
@@ -142,18 +126,18 @@ impl Callable for Function {
 
 struct AddOperation;
 impl Callable for AddOperation {
-    fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
-        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i32>().unwrap();
-        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i32>().unwrap();
+    fn exec(&self, _context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
+        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i64>().unwrap();
+        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i64>().unwrap();
         vec![Some(Rc::new(a + b))]
     }
 }
 
 struct MulOperation;
 impl Callable for MulOperation {
-    fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
-        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i32>().unwrap();
-        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i32>().unwrap();
+    fn exec(&self, _context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
+        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i64>().unwrap();
+        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i64>().unwrap();
         vec![Some(Rc::new(a * b))]
     }
 }
@@ -169,22 +153,22 @@ mod tests {
         let add_func_index = context.add_function(Box::new(AddOperation {}));
         let mul_func_index = context.add_function(Box::new(MulOperation {}));
 
-        let mut madd_function = Function::new(String::from("madd"));
-        let a_input = madd_function.add_input(String::from("a"), DataType::Int);
-        let b_input = madd_function.add_input(String::from("b"), DataType::Int);
-        let c_input = madd_function.add_input(String::from("c"), DataType::Int);
-        let d_var = madd_function.add_variable(String::from("d"), DataType::Int);
-        let out_var = madd_function.add_output(String::from("result"), DataType::Int);
+        let mut madd_function = Function::new();
+        let a_input = madd_function.add_input(DataType::Int);
+        let b_input = madd_function.add_input(DataType::Int);
+        let c_input = madd_function.add_input(DataType::Int);
+        let d_var = madd_function.add_variable(DataType::Int);
+        let out_var = madd_function.add_output(DataType::Int);
         madd_function.add_procedure(mul_func_index, vec![a_input, b_input], vec![d_var]);
         madd_function.add_procedure(add_func_index, vec![c_input, d_var], vec![out_var]);
         let madd_func_index = context.add_function(Box::new(madd_function));
 
-        let madd_a: VariableData = Some(Rc::new(2));
-        let madd_b: VariableData = Some(Rc::new(3));
-        let madd_c: VariableData = Some(Rc::new(1));
+        let madd_a: VariableData = Some(Rc::new(2_i64));
+        let madd_b: VariableData = Some(Rc::new(3_i64));
+        let madd_c: VariableData = Some(Rc::new(1_i64));
         let mut madd_output = context.exec(madd_func_index, vec![madd_a, madd_b, madd_c]);
         let madd_output = madd_output.remove(0).unwrap();
-        let madd_output = *(*madd_output).downcast_ref::<i32>().unwrap();
+        let madd_output = *(*madd_output).downcast_ref::<i64>().unwrap();
         assert_eq!(madd_output, 7)
     }
 }
