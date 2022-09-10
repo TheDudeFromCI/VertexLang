@@ -1,5 +1,6 @@
 mod compiler;
 mod context;
+mod runtime;
 use clap::{Parser, Subcommand};
 use std::fs;
 

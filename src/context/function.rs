@@ -7,7 +7,7 @@ pub struct Variable {
     index: usize,
 }
 
-type VariableData = Option<Rc<dyn Any>>;
+pub type VariableData = Option<Rc<dyn Any>>;
 
 pub struct Procedure {
     func_index: usize,
@@ -85,7 +85,7 @@ impl Context {
     }
 }
 
-impl Callable for Function {
+impl Callable for Function { 
     fn exec(&self, context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
         let mut vars: Vec<VariableData> = vec![None; self.variables.len()];
         let mut outputs: Vec<VariableData> = vec![None; self.output_vars.len()];
@@ -128,27 +128,10 @@ impl Callable for Function {
     }
 }
 
-struct AddOperation;
-impl Callable for AddOperation {
-    fn exec(&self, _context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
-        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i64>().unwrap();
-        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i64>().unwrap();
-        vec![Some(Rc::new(a + b))]
-    }
-}
-
-struct MulOperation;
-impl Callable for MulOperation {
-    fn exec(&self, _context: &Context, inputs: Vec<VariableData>) -> Vec<VariableData> {
-        let a = *inputs[0].as_ref().unwrap().downcast_ref::<i64>().unwrap();
-        let b = *inputs[1].as_ref().unwrap().downcast_ref::<i64>().unwrap();
-        vec![Some(Rc::new(a * b))]
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+	use crate::runtime::math::{AddOperation, MulOperation};
 
     #[test]
     fn simple_madd_func() {
