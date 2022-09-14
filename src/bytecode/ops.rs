@@ -14,33 +14,31 @@ pub enum Constant {
 pub enum Op {
     NoOp,
     Constant(usize),
-    PopOp,
+    Return,
     IntAdd,
     IntSub,
     IntMul,
     IntDiv,
     IntMod,
     IntPow,
+    Jump(usize),
+    Copy(u32),
 }
 
 impl Op {
     pub fn as_bytes(&self) -> Vec<u8> {
         match self {
             Op::NoOp => vec![0x00],
-            Op::Constant(b) => vec![
-                0x01,
-                (*b >> 24) as u8,
-                (*b >> 16) as u8,
-                (*b >> 8) as u8,
-                *b as u8,
-            ],
-            Op::PopOp => vec![0x02],
+            Op::Constant(b) => cascade! { write_u32(*b as u32);..insert(0, 0x01); },
+            Op::Return => vec![0x02],
             Op::IntAdd => vec![0x03],
             Op::IntSub => vec![0x04],
             Op::IntMul => vec![0x05],
             Op::IntDiv => vec![0x06],
             Op::IntMod => vec![0x07],
             Op::IntPow => vec![0x08],
+            Op::Jump(b) => cascade! { write_u32(*b as u32);..insert(0, 0x09); },
+            Op::Copy(b) => cascade! { write_u32(*b);..insert(0, 0x0A); },
         }
     }
 
@@ -54,7 +52,7 @@ impl Op {
                 }),
                 5,
             )),
-            0x02 => Ok((Op::PopOp, 1)),
+            0x02 => Ok((Op::Return, 1)),
 
             0x03 => Ok((Op::IntAdd, 1)),
             0x04 => Ok((Op::IntSub, 1)),
@@ -62,6 +60,21 @@ impl Op {
             0x06 => Ok((Op::IntDiv, 1)),
             0x07 => Ok((Op::IntMod, 1)),
             0x08 => Ok((Op::IntPow, 1)),
+
+            0x09 => Ok((
+                Op::Jump(match read_u32(bytes, index + 1) {
+                    Ok(n) => n as usize,
+                    Err(e) => return Err(Box::new(e)),
+                }),
+                5,
+            )),
+            0x0A => Ok((
+                Op::Copy(match read_u32(bytes, index + 1) {
+                    Ok(n) => n,
+                    Err(e) => return Err(Box::new(e)),
+                }),
+                5,
+            )),
 
             b => Err(Box::new(UnknownOpError(*b))),
         }

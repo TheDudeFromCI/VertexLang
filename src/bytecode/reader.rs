@@ -101,24 +101,24 @@ mod tests {
     #[test]
     fn read_simple_add() {
         let bytes = vec![
-            // Magic number
-            0x56, 0x25, 0x14, 0xAF, // Const Count
-            0x00, 0x00, 0x00, 0x02, // Op Count
-            0x00, 0x00, 0x00, 0x04, // Constants
+            0x56, 0x25, 0x14, 0xAF, // Magic number
+            0x00, 0x00, 0x00, 0x02, // Const Count
+            0x00, 0x00, 0x00, 0x04, // Op Count
+            // Constants
             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, // Int(23)
             0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xED, // Int(-19)
             // Ops
             0x01, 0x00, 0x00, 0x00, 0x00, // Load const 0
             0x01, 0x00, 0x00, 0x00, 0x01, // Load const 1
             0x03, // Add
-            0x02, // Pop
+            0x02, // Return
         ];
 
         let bytecode = Bytecode::from_bytes(&bytes).unwrap();
         assert_eq!(
             bytecode,
             Bytecode {
-                instructions: vec![Op::Constant(0), Op::Constant(1), Op::IntAdd, Op::PopOp,],
+                instructions: vec![Op::Constant(0), Op::Constant(1), Op::IntAdd, Op::Return],
                 constants: vec![Constant::Int(23), Constant::Int(-19),],
             }
         );
