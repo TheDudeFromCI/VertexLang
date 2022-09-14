@@ -43,7 +43,8 @@ fn main() {
             println!("Running file: {:?}", file);
             let bytes = fs::read(file).unwrap();
             let code = bytecode::Bytecode::from_bytes(&bytes).unwrap();
-            bytecode::execute(&code).unwrap();
+            let vm = bytecode::VM::new(&code);
+            vm.exec(0);
         }
 
         Subcommands::Compile { file } => {

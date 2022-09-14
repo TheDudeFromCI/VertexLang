@@ -13,12 +13,14 @@ pub enum Constant {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Op {
 	NoOp,
-	Constant(u32),
+	Constant(usize),
 	PopOp,
 	IntAdd,
-	IntSubtract,
-	IntMultiply,
-	IntDivide,
+	IntSub,
+	IntMul,
+	IntDiv,
+	IntMod,
+	IntPow,
 }
 
 impl Op {
@@ -28,9 +30,11 @@ impl Op {
 			Op::Constant(b) => vec![0x01, (*b >> 24) as u8, (*b >> 16) as u8, (*b >> 8) as u8, *b as u8],
 			Op::PopOp => vec![0x02],
 			Op::IntAdd => vec![0x03],
-			Op::IntSubtract => vec![0x04],
-			Op::IntMultiply => vec![0x05],
-			Op::IntDivide => vec![0x06],
+			Op::IntSub => vec![0x04],
+			Op::IntMul => vec![0x05],
+			Op::IntDiv => vec![0x06],
+			Op::IntMod => vec![0x07],
+			Op::IntPow => vec![0x08],
 		}
 	}
 
@@ -38,15 +42,17 @@ impl Op {
 		match &bytes[index] {
 			0x00 => Ok((Op::NoOp, 1)),
 			0x01 => Ok((Op::Constant(match read_u32(bytes, index + 1) {
-				Ok(n) => n,
+				Ok(n) => n as usize,
 				Err(e) => return Err(Box::new(e)),
 			}), 5)),
 			0x02 => Ok((Op::PopOp, 1)),
 
 			0x03 => Ok((Op::IntAdd, 1)),
-			0x04 => Ok((Op::IntSubtract, 1)),
-			0x05 => Ok((Op::IntMultiply, 1)),
-			0x06 => Ok((Op::IntDivide, 1)),
+			0x04 => Ok((Op::IntSub, 1)),
+			0x05 => Ok((Op::IntMul, 1)),
+			0x06 => Ok((Op::IntDiv, 1)),
+			0x07 => Ok((Op::IntMod, 1)),
+			0x08 => Ok((Op::IntPow, 1)),
 			
 			b => Err(Box::new(UnknownOpError(*b)))
 		}

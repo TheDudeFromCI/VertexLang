@@ -1,8 +1,8 @@
-mod exec;
 mod error;
 mod ops;
 mod util;
 mod reader;
+mod vm;
 
 pub use reader::*;
-pub use exec::*;
+pub use vm::*;

@@ -6,8 +6,8 @@ pub const MAGIC_NUMBER: u32 = 0x562514AF_u32;
 
 #[derive(Debug)]
 pub struct Bytecode {
-	instructions: Vec<Op>,
-	constants: Vec<Constant>,
+	pub instructions: Vec<Op>,
+	pub constants: Vec<Constant>,
 }
 
 impl PartialEq for Bytecode {
