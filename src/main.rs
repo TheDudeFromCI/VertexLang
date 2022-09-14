@@ -1,11 +1,15 @@
 mod compiler;
 mod context;
 mod runtime;
+mod bytecode;
 use clap::{Parser, Subcommand};
 use std::fs;
 
 #[macro_use]
 extern crate pest_derive;
+
+#[macro_use]
+extern crate cascade;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
@@ -37,6 +41,9 @@ fn main() {
     match &args.command {
         Subcommands::Run { file } => {
             println!("Running file: {:?}", file);
+            let bytes = fs::read(file).unwrap();
+            let code = bytecode::Bytecode::from_bytes(&bytes).unwrap();
+            bytecode::execute(&code).unwrap();
         }
 
         Subcommands::Compile { file } => {
