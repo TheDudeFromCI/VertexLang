@@ -1,7 +1,7 @@
+mod bytecode;
 mod compiler;
 mod context;
 mod runtime;
-mod bytecode;
 use clap::{Parser, Subcommand};
 use std::fs;
 

@@ -1,7 +1,7 @@
 mod error;
 mod ops;
-mod util;
 mod reader;
+mod util;
 mod vm;
 
 pub use reader::*;
