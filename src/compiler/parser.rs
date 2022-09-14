@@ -1,7 +1,7 @@
 extern crate pest;
 use super::ast::*;
 use super::CompilerError;
-use crate::context::DataType;
+use crate::compiler::datatype::DataType;
 use ordered_float::OrderedFloat;
 use pest::iterators::Pair;
 use pest::Parser;

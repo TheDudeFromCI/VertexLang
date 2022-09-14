@@ -1,5 +1,6 @@
 mod ast;
 mod compiler_error;
+mod datatype;
 mod parser;
 pub use compiler_error::CompilerError;
 

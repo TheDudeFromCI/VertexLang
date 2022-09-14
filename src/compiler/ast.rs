@@ -1,4 +1,4 @@
-use crate::context::DataType;
+use crate::compiler::datatype::DataType;
 use ordered_float::OrderedFloat;
 use std::fmt;
 
