@@ -1,0 +1,72 @@
+// Whitespace
+WHITESPACE = _{ " " | "\r "| "\n" | "\t" }
+COMMENT_LINE = _{ "#" ~ (!"\n" ~ ANY)* }
+
+
+// Literals
+Int = @{ ("+" | "-")? ~ ASCII_DIGIT+ }
+Float = @{ ("+" | "-")? ~ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+)) }
+String = ${ PUSH("\"" | "'" | "`") ~ StringInterior ~ POP  }
+StringInterior = @{ Char* }
+Char = {
+    !(PEEK | "\\") ~ ANY
+    | "\\" ~ (PEEK | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+ENotation = @{ (Float | Int) ~ ^"e" ~ Int }
+Bool = @{ "true" | "false" }
+Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+InnerVar = { Identifier ~ ("." ~ Identifier)+ }
+
+
+// Expressions
+Expr = { ("(" ~ Expr ~ ")") | ENotation | Float | Int | String | Bool | FuncCall | InnerVar | Identifier }
+ExprList = { Expr ~ ("," ~ Expr)* }
+FuncCall = { SerialKeyword? ~ Identifier ~ "(" ~ ExprList? ~ ")" }
+Assignment = { Identifier ~ "=" ~ Expr }
+
+
+
+// Function Arguments
+Arg = { Identifier ~ ":" ~ Identifier }
+ArgList = { Arg? ~ ("," ~ Arg)* }
+Params = { "params" ~ "=" ~ "(" ~ ArgList ~ ")" }
+Return = { "return" ~ "=" ~ "(" ~ ArgList ~ ")" }
+
+
+// Keywords
+ExportKeyword = { "export" }
+SerialKeyword = { "serial" }
+
+
+// Functions
+FunctionBody = { (Struct | Function | Assignment | FuncCall)* }
+Function = {
+    Identifier ~ "=" ~ ExportKeyword? ~ SerialKeyword? ~ "function" ~ "{"
+        ~ Params
+        ~ Return
+        ~ FunctionBody
+    ~ "}"
+}
+
+
+// Structs
+StructBody = { Arg* }
+Struct = {
+    Identifier ~ "=" ~ ExportKeyword? ~ "struct" ~ "{"
+        ~ StructBody
+    ~ "}"
+}
+
+
+// Modules
+ModuleBody = { (Function | Struct | Module)* }
+Module = {
+    Identifier ~ "=" ~ ExportKeyword? ~ "mod" ~ "{"
+        ~ ModuleBody
+    ~ "}"
+}
+
+
+// Context
+Program = { SOI ~ Module* ~ EOI }

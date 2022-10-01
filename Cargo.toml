@@ -12,8 +12,13 @@ readme = "README.md"
 exclude = [".github/*"]
 
 [dependencies]
-cascade = "1.0.0"
-clap = { version = "3.2.20", features = ["derive"] }
-ordered-float = "3.0.0"
+clap = { version = "4.0.4", features = ["derive"] }
+derivative = "2.2.0"
 pest = "2.3.0"
 pest_derive = "2.3.0"
+thiserror = "1.0.36"
+
+[dev-dependencies]
+pretty_assertions = "1.3.0"
+indoc = "1.0.7"
+ntest = "0.8.1"
