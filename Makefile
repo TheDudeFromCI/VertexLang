@@ -12,6 +12,7 @@ test:
 fmt:
 	@echo Validating project file formating
 	@cargo +nightly fmt --all -- --check
+	@cargo +nightly clippy --all-targets --all-features -- -D warnings
 
 docs:
 	@echo Building project documentation

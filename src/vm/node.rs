@@ -89,8 +89,8 @@ impl Node {
         // Set the inputs of the node to none in order to allow older nodes to be
         // deallocated if they no longer have any pending children nodes. This helps
         // reduce memory usage by deallocating data that no longer has any references.
-        (*node_data).inputs = None;
-        (*node_data).data = NodeDataState::Done(data);
+        node_data.inputs = None;
+        node_data.data = NodeDataState::Done(data);
     }
 
 
@@ -112,7 +112,7 @@ impl Node {
     pub(crate) fn execute(self: &Arc<Node>) -> Option<JobHandle> {
         let mut node_data = self.data.lock().unwrap();
         if let NodeDataState::None = node_data.data {
-            (*node_data).data = NodeDataState::Pending;
+            node_data.data = NodeDataState::Pending;
         } else {
             return None;
         }

@@ -35,7 +35,7 @@ jobs:
       run: cargo +nightly fmt --all -- --check
 
     - name: Verify Clippy
-      run: cargo clippy --all-targets --all-features -- -D warnings
+      run: cargo +nightly clippy --all-targets --all-features -- -D warnings
 
   deploy:
     runs-on: ubuntu-latest
