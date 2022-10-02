@@ -15,7 +15,6 @@ pub mod data;
 pub mod multithreading;
 pub mod parser;
 pub mod registry;
-mod utils;
 pub mod vm;
 
 extern crate derivative;
