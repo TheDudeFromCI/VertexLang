@@ -1,17 +1,12 @@
 use super::{Node, NodeFunction};
-use crate::data::Data;
+use crate::data::{Data, VertexFunction};
 use crate::multithreading::jobs::Scheduler;
 use std::sync::Arc;
 
 
-type BasicFunction = fn(inputs: Vec<Arc<Data>>) -> Data;
-
-
 /// Converts a basic external function into a node function.
-pub fn extern_func(func: BasicFunction) -> Arc<dyn NodeFunction> {
+pub fn extern_func(func: VertexFunction) -> Arc<dyn NodeFunction> {
     Arc::new(move |node: &Arc<Node>| {
-        println!("Building Extern");
-
         let node = node.clone();
         let mut scheduler = node.get_scheduler();
 
@@ -34,13 +29,9 @@ pub fn extern_func(func: BasicFunction) -> Arc<dyn NodeFunction> {
 /// literal data value.
 pub fn literal(data: Arc<Data>) -> Arc<dyn NodeFunction> {
     Arc::new(move |node: &Arc<Node>| {
-        println!("Building Literal");
-
         let data = data.clone();
         let node = node.clone();
         let mut scheduler = node.get_scheduler();
-
-        dbg!(&data);
 
         let node_fut = node.clone();
         let job = move || {

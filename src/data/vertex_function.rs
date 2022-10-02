@@ -5,13 +5,12 @@ use std::sync::Arc;
 ///
 /// This function takes a set of ordered input arguments based off the metadata
 /// specified when the function is registered. This function, after finishing
-/// it's computation, writes the generated output to the output mutable output
-/// slice reference. This function should only read and write the exact number
-/// of arguments specified in the function meta data.
+/// it's computation, returns the generated data. For serial functions that have
+/// no return type, this returned data may simply be Null.
 ///
 /// When implementing this function type, it might be useful to use the
 /// `unwrap_data!()` macro.
-pub type VertexFunction = fn(inputs: &[Arc<Data>], outputs: &mut &[Arc<Data>]);
+pub type VertexFunction = fn(inputs: Vec<Arc<Data>>) -> Data;
 
 
 /// A macro to quickly unwrap data into a specific type. This is used in
