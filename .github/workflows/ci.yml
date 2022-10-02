@@ -37,6 +37,9 @@ jobs:
     - name: Verify Clippy
       run: cargo +nightly clippy --all-targets --all-features -- -D warnings
 
+    - name: Build docs
+      run: cargo doc --document-private-items
+
   deploy:
     runs-on: ubuntu-latest
     needs: test

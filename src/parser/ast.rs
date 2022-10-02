@@ -95,9 +95,10 @@ pub enum GrammarNode {
     /// An expression that reads a nested variable from within another value.
     /// Variables may be nested to any depth, with at least 1 nested access.
     InnerVariable {
-        /// The nested variable path, where path[0] is the root-level variable,
-        /// path[1] is the name of the field within that variable to access,
-        /// path[2] is the name of the field within path[1], and so on.
+        /// The nested variable path, where `path[0]` is the root-level
+        /// variable, `path[1]` is the name of the field within that
+        /// variable to access, `path[2]` is the name of the field within
+        /// `path[1]`, and so on.
         path: Vec<String>,
     },
 
