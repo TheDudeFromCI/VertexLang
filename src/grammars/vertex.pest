@@ -28,7 +28,8 @@ Assignment = { Identifier ~ "=" ~ Expr }
 
 
 // Function Arguments
-Arg = { Identifier ~ ":" ~ Identifier }
+DataType = @{ Identifier ~ ("?" | "[]" | "$")* }
+Arg = { Identifier ~ ":" ~ DataType }
 ArgList = { Arg? ~ ("," ~ Arg)* }
 Params = { "params" ~ "=" ~ "(" ~ ArgList ~ ")" }
 Return = { "return" ~ "=" ~ "(" ~ ArgList ~ ")" }
