@@ -1,8 +1,8 @@
 //! The function registry for Vertex.
 
 
+use crate::compiler::ir_nodes::IRDataType;
 use crate::data::VertexFunction;
-use crate::ir::ir_nodes::IRDataType;
 use crate::registry::error::RegistryError;
 use std::error::Error;
 

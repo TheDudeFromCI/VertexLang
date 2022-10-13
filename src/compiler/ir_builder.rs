@@ -4,8 +4,8 @@
 
 use super::errors::{CompilerError, IRError};
 use super::ir_nodes::{IRContext, IRFuncCall, IRFunction, IRNode, IRNodeInput, IRStruct};
-use crate::ir::ir_nodes::IRDataType;
-use crate::parser::nodes::*;
+use crate::compiler::ir_nodes::IRDataType;
+use crate::compiler::nodes::*;
 use crate::registry::FunctionRegistry;
 use std::cmp::Ordering;
 
@@ -287,9 +287,9 @@ fn verify_no_circular_deps(_assignments: &[AssignmentNode]) -> Result<(), Compil
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::compiler::ir_nodes::{IRFuncCall, IRNode, IRNodeInput};
+    use crate::compiler::parse;
     use crate::data::Data;
-    use crate::ir::ir_nodes::{IRFuncCall, IRNode, IRNodeInput};
-    use crate::parser::parse;
     use crate::registry::FuncMeta;
     use indoc::indoc;
     use pretty_assertions::assert_eq;

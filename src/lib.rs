@@ -11,10 +11,9 @@
 #![warn(rustdoc::invalid_html_tags)]
 
 
+pub mod compiler;
 pub mod data;
-pub mod ir;
 pub mod multithreading;
-pub mod parser;
 pub mod registry;
 pub mod vm;
 
