@@ -6,6 +6,9 @@ use thiserror::Error;
 pub enum RegistryError {
     #[error("Function `{0}` already exists")]
     FunctionAlreadyExists(String),
+
+    #[error("Cannot use unresolved data types in function metadata")]
+    UnresolvedDataType,
 }
 
 

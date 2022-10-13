@@ -1,6 +1,7 @@
 // Whitespace
-WHITESPACE = _{ " " | "\r "| "\n" | "\t" }
-COMMENT_LINE = _{ "#" ~ (!"\n" ~ ANY)* }
+WHITESPACE = _{ " " | "\t" }
+COMMENT_LINE = _{ "#" ~ (!NEWLINE ~ ANY)* }
+EndLine = _{ NEWLINE+ }
 
 
 // Literals
@@ -20,15 +21,20 @@ InnerVar = { Identifier ~ ("." ~ Identifier)+ }
 
 
 // Expressions
+FuncCall = { SerialKeyword? ~ ExternKeyword? ~ Identifier ~ "(" ~ ExprList? ~ ")" }
 Expr = { ("(" ~ Expr ~ ")") | ENotation | Float | Int | String | Bool | FuncCall | InnerVar | Identifier }
 ExprList = { Expr ~ ("," ~ Expr)* }
-FuncCall = { SerialKeyword? ~ Identifier ~ "(" ~ ExprList? ~ ")" }
-Assignment = { Identifier ~ "=" ~ Expr }
+Assignment = { (Identifier ~ "=")? ~ Expr ~ EndLine }
 
 
 
 // Function Arguments
-DataType = @{ Identifier ~ ("?" | "[]" | "$")* }
+DataType = @{
+      ("(" ~ DataType ~ ("," ~ DataType)* ~ ")")
+    | ("{" ~ DataType ~ ":" ~ DataType ~ "}")
+    | (Identifier ~ ("?" | "[" ~ ASCII_DIGIT* ~ "]" | "!")?)
+}
+
 Arg = { Identifier ~ ":" ~ DataType }
 ArgList = { Arg? ~ ("," ~ Arg)* }
 Params = { "params" ~ "=" ~ "(" ~ ArgList ~ ")" }
@@ -38,34 +44,35 @@ Return = { "return" ~ "=" ~ "(" ~ ArgList ~ ")" }
 // Keywords
 ExportKeyword = { "export" }
 SerialKeyword = { "serial" }
+ExternKeyword = { "extern" }
 
 
 // Functions
-FunctionBody = { (Struct | Function | Assignment | FuncCall)* }
+FunctionBody = { (Struct | Function | Assignment)* }
 Function = {
-    Identifier ~ "=" ~ ExportKeyword? ~ SerialKeyword? ~ "function" ~ "{"
-        ~ Params
-        ~ Return
+    Identifier ~ "=" ~ ExportKeyword? ~ SerialKeyword? ~ "function" ~ "{" ~ EndLine?
+        ~ Params ~ EndLine
+        ~ Return ~ EndLine
         ~ FunctionBody
-    ~ "}"
+    ~ "}" ~ EndLine
 }
 
 
 // Structs
-StructBody = { Arg* }
+StructBody = { (Arg ~ EndLine)* }
 Struct = {
-    Identifier ~ "=" ~ ExportKeyword? ~ "struct" ~ "{"
+    Identifier ~ "=" ~ ExportKeyword? ~ "struct" ~ "{" ~ EndLine?
         ~ StructBody
-    ~ "}"
+    ~ "}" ~ EndLine
 }
 
 
 // Modules
 ModuleBody = { (Function | Struct | Module)* }
 Module = {
-    Identifier ~ "=" ~ ExportKeyword? ~ "mod" ~ "{"
+    Identifier ~ "=" ~ ExportKeyword? ~ "mod" ~ "{" ~ EndLine?
         ~ ModuleBody
-    ~ "}"
+    ~ "}" ~ EndLine?
 }
 
 

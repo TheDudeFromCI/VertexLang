@@ -99,7 +99,6 @@ fn parse_function(pair: Pair<Rule>) -> FunctionNode {
 
     let mut functions = vec![];
     let mut structs = vec![];
-    let mut statements = vec![];
     let mut assignments = vec![];
 
     let function_body = get_rule_consume(&mut pairs, Rule::FunctionBody).unwrap();
@@ -108,7 +107,6 @@ fn parse_function(pair: Pair<Rule>) -> FunctionNode {
             Rule::Function => functions.push(parse_function(pair)),
             Rule::Struct => structs.push(parse_struct(pair)),
             Rule::Assignment => assignments.push(parse_assignment(pair)),
-            Rule::FuncCall => statements.push(parse_function_call(pair)),
             _ => panic!("Unexpected token: {}", pair),
         }
     }
@@ -126,7 +124,6 @@ fn parse_function(pair: Pair<Rule>) -> FunctionNode {
         functions,
         structs,
         assignments,
-        statements,
     }
 }
 
@@ -183,7 +180,7 @@ fn parse_argument(pair: Pair<Rule>) -> ArgumentNode {
     let name = get_rule_consume(&mut pairs, Rule::Identifier).unwrap();
     let name = name.as_str().to_string();
 
-    let dtype = get_rule_consume(&mut pairs, Rule::Identifier).unwrap();
+    let dtype = get_rule_consume(&mut pairs, Rule::DataType).unwrap();
     let dtype = dtype.as_str().to_string();
 
     ArgumentNode {
@@ -201,8 +198,12 @@ fn parse_assignment(pair: Pair<Rule>) -> AssignmentNode {
     let (line, col) = pair.as_span().start_pos().line_col();
     let mut pairs = pair.into_inner();
 
-    let variable = get_rule_consume(&mut pairs, Rule::Identifier).unwrap();
-    let variable = parse_variable(variable);
+    let variable;
+    if let Some(variable_pair) = get_rule_consume(&mut pairs, Rule::Identifier) {
+        variable = Some(parse_variable(variable_pair));
+    } else {
+        variable = None;
+    }
 
     let expression = get_rule_consume(&mut pairs, Rule::Expr).unwrap();
     let expression = parse_expression(expression);
@@ -223,6 +224,7 @@ fn parse_function_call(pair: Pair<Rule>) -> FunctionCallNode {
     let mut pairs = pair.into_inner();
 
     let serial = is_rule_consume(&mut pairs, Rule::SerialKeyword);
+    let external = is_rule_consume(&mut pairs, Rule::ExternKeyword);
 
     let name = get_rule_consume(&mut pairs, Rule::Identifier).unwrap();
     let name = name.as_str().to_string();
@@ -237,6 +239,7 @@ fn parse_function_call(pair: Pair<Rule>) -> FunctionCallNode {
         },
         function_name: name,
         serial,
+        external,
         arguments: expr_list,
     }
 }
@@ -461,31 +464,129 @@ mod tests {
                     },
                     functions:   vec![],
                     structs:     vec![],
-                    assignments: vec![],
-                    statements:  vec![FunctionCallNode {
-                        position:      NodePosition {
+                    assignments: vec![AssignmentNode {
+                        position:   NodePosition {
                             line: 6,
                             col:  9,
                         },
-                        function_name: String::from("Println"),
-                        serial:        true,
-                        arguments:     ExpressionListNode {
-                            position:    NodePosition {
+                        variable:   None,
+                        expression: ExpressionNode::FunctionCall(FunctionCallNode {
+                            position:      NodePosition {
                                 line: 6,
-                                col:  24,
+                                col:  9,
                             },
-                            expressions: vec![ExpressionNode::StringLiteral(StringLiteralNode {
-                                position: NodePosition {
+                            function_name: String::from("Println"),
+                            serial:        true,
+                            external:      false,
+                            arguments:     ExpressionListNode {
+                                position:    NodePosition {
                                     line: 6,
                                     col:  24,
                                 },
-                                value:    String::from("Hello, world!"),
-                            })],
-                        },
+                                expressions: vec![ExpressionNode::StringLiteral(
+                                    StringLiteralNode {
+                                        position: NodePosition {
+                                            line: 6,
+                                            col:  24,
+                                        },
+                                        value:    String::from("Hello, world!"),
+                                    }
+                                )],
+                            },
+                        }),
                     }],
                 }],
                 structs:   vec![],
             }],
         });
+    }
+
+
+    #[test]
+    fn external_function() {
+        let ast = parse(indoc! {r#"
+            Module = mod {
+                Main = function {
+                    params = ()
+                    return = ()
+
+                    extern Println("Apple")
+                }
+            }
+        "#});
+
+        if let Err(e) = ast {
+            println!("{}", e);
+            panic!();
+        }
+
+        assert_eq!(ast.unwrap(), ContextNode {
+            modules: vec![ModuleNode {
+                position:  NodePosition {
+                    line: 1,
+                    col:  1,
+                },
+                name:      String::from("Module"),
+                export:    false,
+                modules:   vec![],
+                functions: vec![FunctionNode {
+                    position:    NodePosition {
+                        line: 2,
+                        col:  5,
+                    },
+                    name:        String::from("Main"),
+                    export:      false,
+                    serial:      false,
+                    params:      ArgumentListNode {
+                        position:  NodePosition {
+                            line: 3,
+                            col:  19,
+                        },
+                        arguments: vec![],
+                    },
+                    returns:     ArgumentListNode {
+                        position:  NodePosition {
+                            line: 4,
+                            col:  19,
+                        },
+                        arguments: vec![],
+                    },
+                    functions:   vec![],
+                    structs:     vec![],
+                    assignments: vec![AssignmentNode {
+                        position:   NodePosition {
+                            line: 6,
+                            col:  9,
+                        },
+                        variable:   None,
+                        expression: ExpressionNode::FunctionCall(FunctionCallNode {
+                            position:      NodePosition {
+                                line: 6,
+                                col:  9,
+                            },
+                            function_name: String::from("Println"),
+                            serial:        false,
+                            external:      true,
+                            arguments:     ExpressionListNode {
+                                position:    NodePosition {
+                                    line: 6,
+                                    col:  24,
+                                },
+                                expressions: vec![ExpressionNode::StringLiteral(
+                                    StringLiteralNode {
+                                        position: NodePosition {
+                                            line: 6,
+                                            col:  24,
+                                        },
+                                        value:    String::from("Apple"),
+                                    }
+                                )],
+                            },
+                        }),
+                    }],
+                }],
+                structs:   vec![],
+            }],
+        })
     }
 }

@@ -1,7 +1,8 @@
 //! The function registry for Vertex.
 
 
-use crate::data::{DataType, VertexFunction};
+use crate::data::VertexFunction;
+use crate::ir::ir_nodes::IRDataType;
 use crate::registry::error::RegistryError;
 use std::error::Error;
 
@@ -10,10 +11,10 @@ use std::error::Error;
 /// the function registry.
 #[derive(Clone)]
 pub struct FuncMeta {
-    name:        String,
-    func:        VertexFunction,
-    input_args:  Vec<DataType>,
-    output_args: Vec<DataType>,
+    name:       String,
+    func:       VertexFunction,
+    input_args: Vec<IRDataType>,
+    output:     IRDataType,
 }
 
 
@@ -21,14 +22,18 @@ impl FuncMeta {
     /// Creates a new function meta data container for use with the function
     /// registry.
     pub fn new(
-        name: String, func: VertexFunction, input_args: Vec<DataType>, output_args: Vec<DataType>,
-    ) -> Self {
-        FuncMeta {
+        name: String, func: VertexFunction, input_args: Vec<IRDataType>, output: IRDataType,
+    ) -> Result<Self, RegistryError> {
+        if input_args.iter().any(|d| !d.is_resolved()) || !output.is_resolved() {
+            return Err(RegistryError::UnresolvedDataType);
+        }
+
+        Ok(FuncMeta {
             name,
             func,
             input_args,
-            output_args,
-        }
+            output,
+        })
     }
 
 
@@ -45,14 +50,14 @@ impl FuncMeta {
 
 
     /// Gets the input argument types for this function.
-    pub fn get_inputs(&self) -> &Vec<DataType> {
+    pub fn get_inputs(&self) -> &Vec<IRDataType> {
         &self.input_args
     }
 
 
-    /// Gets the output argument types for this function.
-    pub fn get_outputs(&self) -> &Vec<DataType> {
-        &self.output_args
+    /// Gets the output argument type for this function.
+    pub fn get_output(&self) -> &IRDataType {
+        &self.output
     }
 }
 

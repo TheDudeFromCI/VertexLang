@@ -76,9 +76,6 @@ pub struct FunctionNode {
 
     /// A list of variable assignment operations within this function.
     pub assignments: Vec<AssignmentNode>,
-
-    /// An ordered list of serial function calls within this function.
-    pub statements: Vec<FunctionCallNode>,
 }
 
 
@@ -166,6 +163,10 @@ pub struct FunctionCallNode {
     /// Whether or not this function call is executed in serial.
     pub serial: bool,
 
+    /// Whether or not this function is an internal function or an external
+    /// function.
+    pub external: bool,
+
     /// The list of expressions being passed into this function as
     /// arguments.
     pub arguments: ExpressionListNode,
@@ -191,7 +192,7 @@ pub struct AssignmentNode {
     pub position: NodePosition,
 
     /// The variable being written to.
-    pub variable: VariableNode,
+    pub variable: Option<VariableNode>,
 
     /// The expression being evaluated.
     pub expression: ExpressionNode,

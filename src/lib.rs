@@ -12,6 +12,7 @@
 
 
 pub mod data;
+pub mod ir;
 pub mod multithreading;
 pub mod parser;
 pub mod registry;

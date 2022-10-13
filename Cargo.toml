@@ -14,8 +14,10 @@ exclude = [".github/*"]
 [dependencies]
 clap = { version = "4.0.4", features = ["derive"] }
 derivative = "2.2.0"
+lazy_static = "1.4.0"
 pest = "2.3.0"
 pest_derive = "2.3.0"
+regex = "1.6.0"
 thiserror = "1.0.36"
 
 [dev-dependencies]
