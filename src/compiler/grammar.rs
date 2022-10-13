@@ -1,3 +1,7 @@
+//! Contains a wrapper for Pest to convert Vertex source code into an abstract
+//! syntax tree using the Vertex pest grammar.
+
+
 // Because Pest generates impl for VertexLangParser that doesn't have docs.
 #[allow(missing_docs)]
 mod peg {
@@ -7,7 +11,7 @@ mod peg {
     pub struct VertexLangParser;
 }
 
-use super::nodes::*;
+use super::ast::*;
 use peg::*;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;

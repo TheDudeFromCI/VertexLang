@@ -1,4 +1,4 @@
-use crate::compiler::nodes::NodePosition;
+use crate::compiler::ast::NodePosition;
 use std::fmt;
 use std::fmt::Display;
 use thiserror::Error as ThisError;
