@@ -59,6 +59,12 @@ impl IRContext {
     pub(super) fn add_function(&mut self, function: IRFunction) {
         self.functions.push(function);
     }
+
+
+    /// Gets a list of all functions within this context.
+    pub fn get_functions(&self) -> &Vec<IRFunction> {
+        &self.functions
+    }
 }
 
 impl Default for IRContext {
