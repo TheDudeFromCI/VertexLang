@@ -83,7 +83,7 @@ impl FunctionRegistry {
     /// If there is already a function in this registry with the same path name,
     /// then an error is returned.
     pub fn register(&mut self, function: FuncMeta) -> Result<(), Box<dyn Error>> {
-        if self.find_function(&function.name).is_some() {
+        if self.get_function(&function.name).is_some() {
             return RegistryError::FunctionAlreadyExists(function.name).err();
         }
 
@@ -92,26 +92,16 @@ impl FunctionRegistry {
     }
 
 
-    /// Tries to find the function id of the registered function with the given
-    /// name.
+    /// Gets the function meta data for the given function name.
     ///
-    /// If there is no registered function with the given name, then None is
-    /// returned. Function IDs are not promised to identical between multiple
-    /// application executions. As such, it is recommended to store function
-    /// path names instead of IDs within bytecode files, and find the function
-    /// ID at startup.
-    ///
-    /// Functions are also not guaranteed to be loaded within the registry
-    /// between application executions if the underlying libraries or
-    /// plugins providing these runtime functions are changed or removed.
-    pub fn find_function(&self, name: &str) -> Option<usize> {
-        self.functions.iter().position(|f| f.name == name)
-    }
-
-
-    /// Gets the function meta data for the given function ID.
-    pub fn get_function(&self, id: usize) -> FuncMeta {
-        self.functions[id].clone()
+    /// If there is no function with the given name, then None is returned.
+    pub fn get_function(&self, name: &str) -> Option<&FuncMeta> {
+        let index = self.functions.iter().position(|f| f.name == name);
+        if let Some(id) = index {
+            Some(&self.functions[id])
+        } else {
+            None
+        }
     }
 }
 

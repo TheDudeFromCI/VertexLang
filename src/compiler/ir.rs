@@ -682,9 +682,7 @@ fn parse_expression_into_nodes(
             }
 
             if f.external {
-                if let Some(ext_func) = function_registry.find_function(&f.function_name) {
-                    let ext_func = function_registry.get_function(ext_func);
-
+                if let Some(ext_func) = function_registry.get_function(&f.function_name) {
                     IRNode::new(
                         IRFuncCall::External(f.function_name.clone()),
                         inputs,
