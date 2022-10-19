@@ -13,6 +13,7 @@ exclude = [".github/*"]
 
 [dependencies]
 clap = { version = "4.0.4", features = ["derive"] }
+tokio = { version = "1.21.2", features = ["rt", "rt-multi-thread"] }
 derivative = "2.2.0"
 lazy_static = "1.4.0"
 pest = "2.3.0"

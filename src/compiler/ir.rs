@@ -5,6 +5,10 @@
 //! within this module define the strict data structures that are defined for
 //! compilation type-checking and optimization.
 
+// TODO: Finish optimizing IR. A lot of defined functions are currently unused, but will be once
+// more optimizations are implemented.
+#![allow(dead_code)]
+
 
 use super::errors::{CompilerError, IRError};
 use crate::compiler::ast::*;
@@ -23,7 +27,7 @@ pub struct IRContext {
 
 impl IRContext {
     /// Creates a new intermediate representation of a Vertex program context.
-    pub(super) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             structs:   vec![],
             functions: vec![],
@@ -50,13 +54,13 @@ impl IRContext {
 
 
     /// Adds a new structure to this program context.
-    pub(super) fn add_struct(&mut self, structure: IRStruct) {
+    pub fn add_struct(&mut self, structure: IRStruct) {
         self.structs.push(structure);
     }
 
 
     /// Adds a new function to this program context.
-    pub(super) fn add_function(&mut self, function: IRFunction) {
+    pub fn add_function(&mut self, function: IRFunction) {
         self.functions.push(function);
     }
 
@@ -89,7 +93,7 @@ pub struct IRStruct {
 impl IRStruct {
     /// Creates a new intermediate representation of a structure with the given
     /// identifier path.
-    pub(super) fn new(ident_path: Vec<String>, accessability: u32) -> Self {
+    pub fn new(ident_path: Vec<String>, accessability: u32) -> Self {
         Self {
             ident_path,
             accessability,
@@ -387,7 +391,7 @@ impl IRDataType {
     /// Gets the corresponding data type from the given data type name.
     ///
     /// If the type is not a primitive type, then it is returned as unresolved.
-    pub(super) fn from(name: &str) -> Self {
+    pub fn from(name: &str) -> Self {
         match name {
             "Int" => IRDataType::Int,
             "Float" => IRDataType::Float,
@@ -744,7 +748,7 @@ mod tests {
 
     #[test]
     fn load_functions_and_structs() {
-        fn external_function(_: Vec<Arc<Data>>) -> Data {
+        fn external_function(_: &[Arc<Data>]) -> Data {
             // Implementation is not important.
             unimplemented!();
         }

@@ -2,13 +2,16 @@
 //! to loading or executing the program are discarded and no further
 //! optimizations or debug data are maintained.
 
-use super::ir::{IRContext, IRFuncCall, IRNodeInput};
+use crate::compiler;
+use crate::compiler::ir::{IRContext, IRFuncCall, IRNodeInput};
 use crate::data::{Data, VertexFunction};
 use crate::registry::FunctionRegistry;
+use std::error::Error;
+use std::sync::Arc;
 
 
 /// A pointer to an external function that can be called from within Vertex.
-pub struct ExternalFunction {
+pub(crate) struct ExternalFunction {
     name:     String,
     function: VertexFunction,
 }
@@ -37,7 +40,8 @@ impl ExternalFunction {
 
 
 /// A pointer to a function within the bytecode to be executed.
-pub enum FunctionCall {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FunctionCall {
     /// Points to the internal function at the given index.
     Internal(usize),
 
@@ -50,6 +54,7 @@ pub enum FunctionCall {
 
 
 /// A pointer to a node that provides the input to another function.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OperationInput {
     /// Points to the function input parameter at the given index.
     Param(usize),
@@ -61,7 +66,8 @@ pub enum OperationInput {
 
 
 /// A single executable instruction to be performed within Vertex.
-pub struct Operation {
+#[derive(Debug, Clone)]
+pub(crate) struct Operation {
     function_call: FunctionCall,
     inputs:        Vec<OperationInput>,
 }
@@ -92,7 +98,7 @@ impl Operation {
 
 /// A container for a set of operation instructions that need to be executed in
 /// order to evaluation this function's output value based on a set of inputs.
-pub struct InternalFunction {
+pub(crate) struct InternalFunction {
     operations: Vec<Operation>,
 }
 
@@ -128,7 +134,7 @@ impl Default for InternalFunction {
 pub struct VertexBytecode {
     external_functions: Vec<ExternalFunction>,
     internal_functions: Vec<InternalFunction>,
-    constants:          Vec<Data>,
+    constants:          Vec<Arc<Data>>,
 }
 
 impl VertexBytecode {
@@ -142,38 +148,47 @@ impl VertexBytecode {
     }
 
 
+    /// Compiles the given Vertex source code into executable byte code.
+    pub fn from_source(source: &str, registry: &FunctionRegistry) -> Result<Self, Box<dyn Error>> {
+        let context_node = compiler::grammar::parse(source)?;
+        let ir = compiler::ir::compile_context(context_node, registry)?;
+        let bytecode = bytecode_from_ir(ir, registry);
+        Ok(bytecode)
+    }
+
+
     /// Adds a new external function to this bytecode.
-    pub fn add_external_function(&mut self, function: ExternalFunction) {
+    pub(crate) fn add_external_function(&mut self, function: ExternalFunction) {
         self.external_functions.push(function);
     }
 
 
     /// Gets a list of all external functions within this bytecode.
-    pub fn get_external_functions(&self) -> &Vec<ExternalFunction> {
+    pub(crate) fn get_external_functions(&self) -> &Vec<ExternalFunction> {
         &self.external_functions
     }
 
 
     /// Adds a new internal function to this bytecode.
-    pub fn add_internal_function(&mut self, function: InternalFunction) {
+    pub(crate) fn add_internal_function(&mut self, function: InternalFunction) {
         self.internal_functions.push(function);
     }
 
 
     /// Gets a list of all internal functions within this bytecode.
-    pub fn get_internal_functions(&self) -> &Vec<InternalFunction> {
+    pub(crate) fn get_internal_functions(&self) -> &Vec<InternalFunction> {
         &self.internal_functions
     }
 
 
     /// Adds a new constant data value to this bytecode.
-    pub fn add_constant(&mut self, constant: Data) {
-        self.constants.push(constant);
+    pub(crate) fn add_constant(&mut self, constant: Data) {
+        self.constants.push(Arc::new(constant));
     }
 
 
     /// Gets a list of all constant values within this bytecode.
-    pub fn get_constants(&self) -> &Vec<Data> {
+    pub(crate) fn get_constants(&self) -> &Vec<Arc<Data>> {
         &self.constants
     }
 }
@@ -189,7 +204,7 @@ impl Default for VertexBytecode {
 ///
 /// This method will panic if the intermediate representation is not properly
 /// loaded or generated.
-pub fn bytecode_from_ir(context: IRContext, registry: &FunctionRegistry) -> VertexBytecode {
+fn bytecode_from_ir(context: IRContext, registry: &FunctionRegistry) -> VertexBytecode {
     let mut bytecode = VertexBytecode::new();
 
     for function in context.get_functions() {
@@ -229,7 +244,7 @@ pub fn bytecode_from_ir(context: IRContext, registry: &FunctionRegistry) -> Vert
 
 
 fn add_const(bytecode: &mut VertexBytecode, constant: Data) -> FunctionCall {
-    if let Some(index) = bytecode.get_constants().iter().position(|c| *c == constant) {
+    if let Some(index) = bytecode.get_constants().iter().position(|c| **c == constant) {
         FunctionCall::Constant(index)
     } else {
         bytecode.add_constant(constant);

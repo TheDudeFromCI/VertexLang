@@ -14,7 +14,7 @@ use std::sync::Arc;
 ///
 /// When implementing this function type, it might be useful to use the
 /// `unwrap_data!()` macro.
-pub type VertexFunction = fn(inputs: Vec<Arc<Data>>) -> Data;
+pub type VertexFunction = fn(inputs: &[Arc<Data>]) -> Data;
 
 
 /// A macro to quickly unwrap data into a specific type. This is used in

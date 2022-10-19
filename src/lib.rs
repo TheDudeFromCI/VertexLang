@@ -11,11 +11,17 @@
 #![warn(rustdoc::invalid_html_tags)]
 
 
-pub mod compiler;
-pub mod data;
+mod bytecode;
+mod compiler;
+mod data;
 pub mod multithreading;
 pub mod registry;
-pub mod vm;
+mod virtual_machine;
+
+pub use bytecode::*;
+pub use data::*;
+pub use virtual_machine::*;
+
 
 extern crate derivative;
 
