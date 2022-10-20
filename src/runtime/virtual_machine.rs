@@ -1,6 +1,6 @@
-use crate::bytecode::{FunctionCall, OperationInput, VertexBytecode};
-use crate::data::{Data, VertexFunction};
-use crate::multithreading::jobs::{AsyncJobScheduler, JobHandle, Scheduler};
+use crate::runtime::bytecode::{FunctionCall, OperationInput, VertexBytecode};
+use crate::runtime::data::{Data, VertexFunction};
+use crate::runtime::multithreading::{AsyncJobScheduler, JobHandle, Scheduler};
 use std::sync::{Arc, Mutex};
 
 
@@ -173,9 +173,10 @@ impl VirtualNode {
 mod tests {
     use super::*;
     use crate::compiler::ir::IRDataType;
-    use crate::multithreading::jobs::JobScheduler;
-    use crate::registry::{FuncMeta, FunctionRegistry};
-    use crate::{multithreading, unwrap_data};
+    use crate::runtime::multithreading;
+    use crate::runtime::multithreading::JobScheduler;
+    use crate::runtime::registry::{FuncMeta, FunctionRegistry};
+    use crate::unwrap_data;
     use indoc::indoc;
     use pretty_assertions::assert_eq;
 

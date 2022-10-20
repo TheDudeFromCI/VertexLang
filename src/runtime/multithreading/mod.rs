@@ -1,6 +1,7 @@
 //! A collection of async utilities for Vertex.
 
-pub mod jobs;
+mod jobs;
 mod workers;
 
+pub use jobs::*;
 pub use workers::*;

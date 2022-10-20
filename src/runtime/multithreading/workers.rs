@@ -36,7 +36,7 @@ pub fn build_workers(scheduler: &AsyncJobScheduler, threads: u32) -> Vec<JoinHan
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::multithreading::jobs::JobScheduler;
+    use crate::runtime::multithreading::JobScheduler;
     use ntest::assert_true;
     use std::time::Duration;
 

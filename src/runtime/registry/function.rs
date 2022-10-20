@@ -2,8 +2,8 @@
 
 
 use crate::compiler::ir::IRDataType;
-use crate::data::VertexFunction;
-use crate::registry::error::RegistryError;
+use crate::runtime::data::VertexFunction;
+use crate::runtime::registry::error::RegistryError;
 use std::error::Error;
 
 

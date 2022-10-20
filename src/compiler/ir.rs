@@ -12,7 +12,7 @@
 
 use super::errors::{CompilerError, IRError};
 use crate::compiler::ast::*;
-use crate::registry::FunctionRegistry;
+use crate::runtime::registry::FunctionRegistry;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::cmp::Ordering;
@@ -739,8 +739,8 @@ fn verify_no_circular_deps(_assignments: &[AssignmentNode]) -> Result<(), Compil
 mod tests {
     use super::*;
     use crate::compiler::grammar::parse;
-    use crate::data::Data;
-    use crate::registry::FuncMeta;
+    use crate::runtime::registry::FuncMeta;
+    use crate::runtime::Data;
     use indoc::indoc;
     use pretty_assertions::assert_eq;
     use std::sync::Arc;

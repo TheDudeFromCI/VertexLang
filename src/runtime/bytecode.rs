@@ -4,8 +4,8 @@
 
 use crate::compiler;
 use crate::compiler::ir::{IRContext, IRFuncCall, IRNodeInput};
-use crate::data::{Data, VertexFunction};
-use crate::registry::FunctionRegistry;
+use crate::runtime::data::{Data, VertexFunction};
+use crate::runtime::registry::FunctionRegistry;
 use std::error::Error;
 use std::sync::Arc;
 
