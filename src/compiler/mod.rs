@@ -2,6 +2,7 @@
 
 
 pub mod ast;
-mod errors;
+pub mod bytecode;
+pub mod errors;
 pub mod grammar;
 pub mod ir;

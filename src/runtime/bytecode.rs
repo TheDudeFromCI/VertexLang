@@ -3,7 +3,6 @@
 //! optimizations or debug data are maintained.
 
 use crate::compiler;
-use crate::compiler::ir::{IRContext, IRFuncCall, IRNodeInput};
 use crate::runtime::data::{Data, VertexFunction};
 use crate::runtime::registry::FunctionRegistry;
 use std::error::Error;
@@ -139,7 +138,7 @@ pub struct VertexBytecode {
 
 impl VertexBytecode {
     /// Creates a new, empty Vertex Bytecode instance.
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         VertexBytecode {
             external_functions: vec![],
             internal_functions: vec![],
@@ -152,7 +151,7 @@ impl VertexBytecode {
     pub fn from_source(source: &str, registry: &FunctionRegistry) -> Result<Self, Box<dyn Error>> {
         let context_node = compiler::grammar::parse(source)?;
         let ir = compiler::ir::compile_context(context_node, registry)?;
-        let bytecode = bytecode_from_ir(ir, registry);
+        let bytecode = compiler::bytecode::bytecode_from_ir(ir, registry);
         Ok(bytecode)
     }
 
@@ -196,77 +195,5 @@ impl VertexBytecode {
 impl Default for VertexBytecode {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-
-/// Creates a new VertexBytecode instance based on the given IRContext.
-///
-/// This method will panic if the intermediate representation is not properly
-/// loaded or generated.
-fn bytecode_from_ir(context: IRContext, registry: &FunctionRegistry) -> VertexBytecode {
-    let mut bytecode = VertexBytecode::new();
-
-    for function in context.get_functions() {
-        let mut int_func = InternalFunction::new();
-        for statement in function.get_statements() {
-            let func = match statement.get_function() {
-                IRFuncCall::External(f) => add_ext_func(&mut bytecode, f, registry),
-                IRFuncCall::Internal(f) => FunctionCall::Internal(*f),
-                IRFuncCall::IntConstant(v) => add_const(&mut bytecode, Data::Int(*v)),
-                IRFuncCall::FloatConstant(v) => add_const(&mut bytecode, Data::Float(*v)),
-                IRFuncCall::StringConstant(v) => add_const(&mut bytecode, Data::String(v.clone())),
-                IRFuncCall::CharConstant(v) => add_const(&mut bytecode, Data::Char(*v)),
-                IRFuncCall::BoolConstant(v) => add_const(&mut bytecode, Data::Bool(*v)),
-                IRFuncCall::Unresolved(_) => {
-                    panic!("Cannot load bytecode from unresolved functions!")
-                },
-            };
-
-            let mut inputs = vec![];
-            for input in statement.get_inputs() {
-                let input = match input {
-                    IRNodeInput::FunctionParam(i) => OperationInput::Param(*i as usize),
-                    IRNodeInput::HiddenNode(i) => OperationInput::Hidden(*i as usize),
-                };
-                inputs.push(input);
-            }
-
-            let operation = Operation::new(func, inputs);
-            int_func.add_operation(operation);
-        }
-
-        bytecode.add_internal_function(int_func);
-    }
-
-    bytecode
-}
-
-
-fn add_const(bytecode: &mut VertexBytecode, constant: Data) -> FunctionCall {
-    if let Some(index) = bytecode.get_constants().iter().position(|c| **c == constant) {
-        FunctionCall::Constant(index)
-    } else {
-        bytecode.add_constant(constant);
-        FunctionCall::Constant(bytecode.get_constants().len() - 1)
-    }
-}
-
-
-fn add_ext_func(
-    bytecode: &mut VertexBytecode, function: &str, registry: &FunctionRegistry,
-) -> FunctionCall {
-    if let Some(index) = bytecode
-        .get_external_functions()
-        .iter()
-        .position(|f| f.get_function_name().eq(function))
-    {
-        FunctionCall::External(index)
-    } else if let Some(func_meta) = registry.get_function(function) {
-        let func = func_meta.get_func();
-        bytecode.add_external_function(ExternalFunction::new(function.to_owned(), func));
-        FunctionCall::External(bytecode.get_external_functions().len() - 1)
-    } else {
-        panic!("Unknown function: {}", function);
     }
 }
