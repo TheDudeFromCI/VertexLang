@@ -1,4 +1,4 @@
-use super::ir::{IRContext, IRFuncCall, IRNodeInput};
+use super::{IRContext, IRFuncCall, IRNodeInput};
 use crate::runtime::registry::FunctionRegistry;
 use crate::runtime::{
     Data, ExternalFunction, FunctionCall, InternalFunction, Operation, OperationInput, VertexBytecode

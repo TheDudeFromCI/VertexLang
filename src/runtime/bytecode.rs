@@ -149,9 +149,9 @@ impl VertexBytecode {
 
     /// Compiles the given Vertex source code into executable byte code.
     pub fn from_source(source: &str, registry: &FunctionRegistry) -> Result<Self, Box<dyn Error>> {
-        let context_node = compiler::grammar::parse(source)?;
-        let ir = compiler::ir::compile_context(context_node, registry)?;
-        let bytecode = compiler::bytecode::bytecode_from_ir(ir, registry);
+        let context_node = compiler::parse(source)?;
+        let ir = compiler::compile_context(context_node, registry)?;
+        let bytecode = compiler::bytecode_from_ir(ir, registry);
         Ok(bytecode)
     }
 

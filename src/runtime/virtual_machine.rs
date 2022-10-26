@@ -172,7 +172,7 @@ impl VirtualNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::compiler::ir::IRDataType;
+    use crate::compiler::IRDataType;
     use crate::runtime::multithreading;
     use crate::runtime::multithreading::JobScheduler;
     use crate::runtime::registry::{FuncMeta, FunctionRegistry};

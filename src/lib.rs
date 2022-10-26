@@ -11,7 +11,7 @@
 #![warn(rustdoc::invalid_html_tags)]
 
 
-mod compiler;
+pub mod compiler;
 pub mod runtime;
 
 
